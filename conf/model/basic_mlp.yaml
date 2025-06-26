@@ -1,0 +1,7 @@
+
+_target_: models.BasicMLP
+input_size: 784  # 28*28 for MNIST
+hidden_size1: 120
+hidden_size2: 120
+hidden_size3: 120
+output_size: 10

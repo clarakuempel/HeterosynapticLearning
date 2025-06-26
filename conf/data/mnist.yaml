@@ -1,0 +1,5 @@
+# @package _global_
+
+# Fixed constants of the dataset
+name: MNIST
+task: classification
