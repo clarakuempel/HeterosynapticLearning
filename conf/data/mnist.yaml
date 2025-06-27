@@ -1,6 +1,6 @@
 # Fixed constants of the dataset
-name: mnist
-task: classification
-# _target_: src.data.mnist_datamodule.MNISTDataModule
+# name: mnist
+# task: classification
+_target_: src.data.mnist_datamodule.MNISTDataModule
 data_dir: data/
 batch_size: 128 

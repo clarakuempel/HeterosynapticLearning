@@ -4,7 +4,7 @@ defaults:
   - data: mnist 
   - optimizer: hp
   - model: basic_mlp
-  - logging: wandb
+  - logger: wandb
   - pruning: basic
   - corruption: basic
 
@@ -14,8 +14,10 @@ hydra:
     subdir: ${hydra:job.num}
   
 
+save_dir: logs/
 accelerator: 'cpu'
 devices: '1'
 epochs: 10
 max_epochs: 15
 check_val_every_n_epoch: 10
+seed: null

@@ -1,12 +1,12 @@
-_target_: src.models.mlp_simple.MLP_Simple
+_target_: src.models.mlp_module.MLP_module
 net:
+  _target_: src.models.components.dense.Dense_Corrupted
   input_size: 784  # 28*28 for MNIST
   hidden_size1: 120
   hidden_size2: 120
   hidden_size3: 120
   output_size: 10
-  epoch: 20
+  corruption: ${corruption} # Corruption is an argument to the model
 
-corruption: ${corruption}
 pruning: ${pruning}
 optimizer: ${optimizer}
