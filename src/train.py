@@ -4,12 +4,14 @@ from omegaconf import DictConfig, OmegaConf
 from lightning import Trainer
 from models.mlp_simple import MLP_Simple
 from data.mnist_datamodule import MNISTDataModule
+import rootutils
 
-
+rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
 def train(cfg : DictConfig) -> None:
     datamodule = MNISTDataModule(data_dir = cfg.data.data_dir, batch_size = cfg.data.batch_size)
-    model: LightningModule = MLP_Simple(cfg)
+    # model: LightningModule = MLP_Simple(cfg)
+    model = hydra.utils.instantiate(cfg.model)
 
     trainer = Trainer(
         accelerator=cfg.accelerator,

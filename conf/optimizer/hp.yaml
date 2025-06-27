@@ -1,4 +1,3 @@
-_target_: optimizer.HP_SGD
 lr: 0.01
 weight_decay: 0.0
 update_alg: "md"  

@@ -6,17 +6,21 @@ from lightning import LightningModule
 
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.classification.accuracy import Accuracy
-from src.utils.corruptions import create_corruption_nmatrix  
+from utils.corruptions import create_corruption_nmatrix  
 
 
 class MLP_Simple(LightningModule):
-    def __init__(self, cfg):
+    def __init__(self, net, corruption, pruning, optimizer):
         super().__init__()
-        # TODO: fill
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
-        cfg_model = cfg.model
-        self.cfg_corruption = cfg.corruption
+        model = net
+        cfg_model = model
+        self.cfg_model = cfg_model
+        cfg_corruption = corruption
+        self.cfg_corruption = cfg_corruption
+        self.cfg_pruning = pruning
+        self.cfg_optimizer = optimizer
         self.save_hyperparameters(logger=False)
             
         self.fc1 = nn.Linear(cfg_model.input_size, cfg_model.hidden_size1)
@@ -25,19 +29,8 @@ class MLP_Simple(LightningModule):
         self.fc4 = nn.Linear(cfg_model.hidden_size3, cfg_model.output_size)
         self.relu = nn.ReLU()
 
-        self.optimizer = cfg.optimizer
-        self.pruning_config = cfg.pruning
-
-        corruption_type = self.cfg_corruption.corruption_type
-
-
-        C1 = create_corruption_nmatrix(cfg_model.hidden_size1, corruption_type, self.cfg_corruption.alpha, self.cfg_corruption.block_size) 
-        C2 = create_corruption_nmatrix(cfg_model.hidden_size2, corruption_type, self.cfg_corruption.alpha, self.cfg_corruption.block_size)
-        C3 = create_corruption_nmatrix(cfg_model.hidden_size3, corruption_type, self.cfg_corruption.alpha, self.cfg_corruption.block_size)
-
-        self.register_buffer('C1', C1)
-        self.register_buffer('C2', C2) 
-        self.register_buffer('C3', C3)
+        # setup corruption matrices if specified
+        self.setup_corruption(cfg_corruption.corruption_type, cfg_corruption.alpha, cfg_corruption.block_size)
 
         # loss function
         self.criterion = torch.nn.CrossEntropyLoss()
@@ -56,8 +49,18 @@ class MLP_Simple(LightningModule):
         self.val_acc_best = MaxMetric()
 
 
-    def forward(self, x):
+    def setup_corruption(self, corruption_type, alpha, block_size):
+        """Setup the corruption matrices based on the corruption type."""
+        C1 = create_corruption_nmatrix(self.cfg_model.hidden_size1, corruption_type, alpha, block_size)
+        C2 = create_corruption_nmatrix(self.cfg_model.hidden_size2, corruption_type, alpha, block_size)
+        C3 = create_corruption_nmatrix(self.cfg_model.hidden_size3, corruption_type, alpha, block_size)
 
+        # Register buffers to ensure they are part of the model state
+        self.register_buffer('C1', C1)
+        self.register_buffer('C2', C2)
+        self.register_buffer('C3', C3)
+
+    def forward(self, x):
         x = self.relu(self.fc1(x))
         x = x @ self.C1.T  
         x = self.relu(self.fc2(x))
@@ -144,4 +147,4 @@ class MLP_Simple(LightningModule):
         pass
 
     def configure_optimizers(self):
-        return  torch.optim.Adam(self.parameters(), lr=0.02)
+        return torch.optim.Adam(self.parameters(), lr=0.02)

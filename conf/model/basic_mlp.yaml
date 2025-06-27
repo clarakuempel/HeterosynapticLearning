@@ -1,9 +1,12 @@
-_target_: src.models.MLP_Simple
-input_size: 784  # 28*28 for MNIST
-hidden_size1: 120
-hidden_size2: 120
-hidden_size3: 120
-output_size: 10
-epoch: 20
-# cfg.optimizer
-# cfg.prunning
+_target_: src.models.mlp_simple.MLP_Simple
+net:
+  input_size: 784  # 28*28 for MNIST
+  hidden_size1: 120
+  hidden_size2: 120
+  hidden_size3: 120
+  output_size: 10
+  epoch: 20
+
+corruption: ${corruption}
+pruning: ${pruning}
+optimizer: ${optimizer}
