@@ -1,0 +1,3 @@
+corruption_type : 'identity'
+alpha: 0.1
+block_size: 4

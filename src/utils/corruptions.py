@@ -1,10 +1,10 @@
 import torch 
 
-def create_correlation_matrix(d, correlation_type='identity', alpha=0.1, block_size=4):
+def create_corruption_nmatrix(d, corruption_type='identity', alpha=0.1, block_size=4):
     """Create correlation matrix C
     Args:
         d (int): Dimensionality of the activation vector.
-        correlation_type (str): One of ['identity', 'block_diagonal', 'full_dense'].
+        corruption_type (str): One of ['identity', 'block_diagonal', 'full_dense'].
         alpha (float): Strength of off-diagonal correlation.
         block_size (int): Block size for block-diagonal structure.
     
@@ -13,10 +13,10 @@ def create_correlation_matrix(d, correlation_type='identity', alpha=0.1, block_s
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    if correlation_type == 'identity':
+    if corruption_type == 'identity':
         return torch.eye(d, device=device)
     
-    elif correlation_type == 'block_diagonal':
+    elif corruption_type == 'block_diagonal':
         C = torch.eye(d, device=device)
         
         # Handle case where d is not perfectly divisible by block_size
@@ -32,13 +32,13 @@ def create_correlation_matrix(d, correlation_type='identity', alpha=0.1, block_s
             
         return C
     
-    elif correlation_type == 'full_dense':
+    elif corruption_type == 'full_dense':
         C = torch.full((d, d), alpha, device=device)
         C.fill_diagonal_(1.0)
         return C
 
     else:
         # Default to identity for unknown types
-        print(f"Warning: Unknown correlation type '{correlation_type}', using identity")
+        print(f"Warning: Unknown matrix corruption type '{corruption_type}', using identity")
         return torch.eye(d, device=device)
 

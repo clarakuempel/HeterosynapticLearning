@@ -1,11 +1,20 @@
 
 defaults:
-  - data: mnist
+  - data: mnist 
   - optimizer: hp
   - model: basic_mlp
   - logging: wandb
+  - pruning: basic
+  - corruption: basic
 
 hydra:
   sweep:
     dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
     subdir: ${hydra:job.num}
+  
+
+accelerator: 'gpu'
+devices: '1'
+epochs: 10
+max_epochs: 15
+check_val_every_n_epoch: 10

@@ -1,4 +1,6 @@
 /logs/
+/lightning_logs
+/outputs
 *.out
 /data/
 /wandb/

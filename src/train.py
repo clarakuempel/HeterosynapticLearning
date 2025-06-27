@@ -1,20 +1,30 @@
 import hydra
-from omegaconf import DictConfig, OmegaConf
-from lightning import Callback, LightningDataModule, LightningModule, Trainer
 
+from omegaconf import DictConfig, OmegaConf
+from lightning import Trainer
+from models.mlp_simple import MLP_Simple
+from data.mnist_datamodule import MNISTDataModule
 
 
 
 def train(cfg : DictConfig) -> None:
+    datamodule = MNISTDataModule(data_dir = cfg.data.data_dir, batch_size = cfg.data.batch_size)
+    model: LightningModule = MLP_Simple(cfg)
 
-    # example usage
-    train_loader = DataLoader(MNIST(os.getcwd(), download=True, transform=transforms.ToTensor()))
-    trainer = pl.Trainer(max_epochs=1)
-    model = MLP_Simple()
-    trainer.fit(model, train_dataloaders=train_loader)
+    trainer = Trainer(
+        accelerator=cfg.accelerator,
+        devices=cfg.devices,
+        max_epochs=cfg.max_epochs,
+        check_val_every_n_epoch=cfg.check_val_every_n_epoch
+    )
+
+    trainer.fit(model, datamodule)
+
+    # TODO: fix this
+    trainer.validate(model, datamodule)
+    trainer.test(model, datamodule)
 
     return None    
-
 
 
 @hydra.main(version_base=None, config_path="../conf", config_name="config")
@@ -24,12 +34,8 @@ def main(cfg: DictConfig) -> None:
     :param cfg: DictConfig configuration composed by Hydra.
     """
     print(OmegaConf.to_yaml(cfg))
-
     train(cfg)
-
-
-    # return optimized metric
-    return metric_value
+    return None
 
 
 

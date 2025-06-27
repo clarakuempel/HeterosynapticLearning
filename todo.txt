@@ -1,0 +1,18 @@
+3. Set Parameters in Config
+- Decide between local and cluster runs
+
+goal:
+- run a basic model + MNIST with parameters set in the config + log wandb
+
+
+Later:
+- add wandb, fix logging
+- FIXME: crash in validation
+
+- hyperparameter sweep later
+implement the other datasets
+- implement other models
+- 
+
+Clara:
+- push code to github
