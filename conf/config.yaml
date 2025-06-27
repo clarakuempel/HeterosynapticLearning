@@ -7,6 +7,7 @@ defaults:
   - logger: wandb
   - pruning: basic
   - corruption: basic
+  - trainer: default
 
 hydra:
   sweep:
@@ -14,10 +15,6 @@ hydra:
     subdir: ${hydra:job.num}
   
 
-save_dir: logs/
-accelerator: 'cpu'
-devices: '1'
+save_dir: logs/ # for wandb
 epochs: 10
-max_epochs: 15
-check_val_every_n_epoch: 10
 seed: null

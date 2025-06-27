@@ -26,13 +26,7 @@ def train(cfg : DictConfig) -> None:
     logger: Logger = hydra.utils.instantiate(cfg.logger)
 
     print(f"Instantiating trainer ...")
-    trainer = Trainer(
-        accelerator=cfg.accelerator,
-        devices=cfg.devices,
-        max_epochs=cfg.max_epochs,
-        check_val_every_n_epoch=cfg.check_val_every_n_epoch,
-        logger=[logger]
-    )
+    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
 
     trainer.fit(model, datamodule)
 
