@@ -30,7 +30,6 @@ def train(cfg : DictConfig) -> None:
 
     trainer.fit(model, datamodule)
 
-    # TODO: fix this
     trainer.validate(model, datamodule)
     trainer.test(model, datamodule)
 
