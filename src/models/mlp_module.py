@@ -3,6 +3,7 @@ import torch.nn.functional as F
 import torch
 from typing import Tuple
 from lightning import LightningModule
+from src.optimizer.md import HP_SGD
 
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.classification.accuracy import Accuracy
@@ -119,4 +120,28 @@ class MLP_module(LightningModule):
         pass
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=0.02)
+        # optim alg
+        if self.cfg_optimizer['update_alg'] == "md":
+            # use the HP_SGD optimizer
+            return HP_SGD(
+                params=self.parameters(),
+                lr=self.cfg_optimizer['lr'],
+                momentum=self.cfg_optimizer['momentum'],
+                dampening=self.cfg_optimizer['dampening'],
+                weight_decay=self.cfg_optimizer['weight_decay'],
+                nesterov=self.cfg_optimizer['nesterov'],
+                block_size=self.cfg_optimizer['block_size'],
+                alpha=self.cfg_optimizer['alpha'],
+            )
+        elif self.cfg_optimizer['update_alg'] == "sgd":
+            # use the SGD optimizer
+            return torch.optim.SGD(
+                params=self.parameters(),
+                lr=self.cfg_optimizer['lr'],
+                momentum=self.cfg_optimizer['momentum'],
+                dampening=self.cfg_optimizer['dampening'],
+                weight_decay=self.cfg_optimizer['weight_decay'],
+                nesterov=self.cfg_optimizer['nesterov'],
+            )
+        else:
+            raise ValueError(f"Unsupported optimizer: {self.cfg_optimizer['update_alg']}")

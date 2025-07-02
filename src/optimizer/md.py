@@ -8,7 +8,7 @@ from torch import Tensor
 from torch.optim.optimizer import (Optimizer, required)
 from typing import List, Optional
 
-from logger import log_update
+# from logger import log_update
 
 def block_hessian(num_blocks, block_size, alpha=0.1):
     assert num_blocks == 1, "For now only 1 block is supported because of shapes in the update"
@@ -106,7 +106,7 @@ class HP_SGD(Optimizer):
             if log and param_update is not None:
                 for p, update in zip(params_with_grad, param_update):
                     name = self.param_to_name.get(p, "unknown")
-                    log_update(update, name)
+                    # log_update(update, name)
 
             # update momentum_buffers in state
             for p, momentum_buffer in zip(params_with_grad, momentum_buffer_list):
