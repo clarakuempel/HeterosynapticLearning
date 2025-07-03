@@ -8,6 +8,7 @@ from src.optimizer.md import HP_SGD
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.classification.accuracy import Accuracy
 
+from src.utils import apply_nm_pruning
 
 class MLP_module(LightningModule):
     """
@@ -39,6 +40,14 @@ class MLP_module(LightningModule):
 
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
+
+    def prune(self):
+        # TODO: implement the pruning rounds
+        apply_nm_pruning(
+            self.net,
+            self.cfg_pruning['N'],
+            self.cfg_pruning['M'],
+        )
 
     def forward(self, x):
         return self.net(x)

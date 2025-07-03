@@ -5,6 +5,7 @@ from lightning import Trainer
 from data.mnist_datamodule import MNISTDataModule
 from lightning.pytorch.loggers import Logger
 import rootutils
+from lightning.pytorch.callbacks import LambdaCallback
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
@@ -29,6 +30,17 @@ def train(cfg : DictConfig) -> None:
     trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
 
     trainer.fit(model, datamodule)
+
+    trainer.validate(model, datamodule)
+
+    # If pruning is enabled prune and re-train
+    # NOTE: for now no pruning rounds
+    if cfg['pruning']['enable'] == True:
+        model.prune()
+        trainer.validate(model, datamodule)
+        print("Re-initializing trainer for pruning...")
+        trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
+        trainer.fit(model, datamodule)
 
     trainer.validate(model, datamodule)
     trainer.test(model, datamodule)

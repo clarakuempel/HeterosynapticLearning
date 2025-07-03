@@ -8,6 +8,7 @@ defaults:
   - pruning: basic
   - corruption: basic
   - trainer: default
+  - trainer/callbacks: early_stopping
 
 hydra:
   sweep:

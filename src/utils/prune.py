@@ -4,7 +4,7 @@ from torch.nn.utils.prune import BasePruningMethod
 
 class NMPruning(BasePruningMethod):
     PRUNING_TYPE = 'structured'
-    def __init__(self, N, M, prune_rounds):
+    def __init__(self, N, M):
         self.N = N
         self.M = M
         self.dim = 0 # in the row dim
