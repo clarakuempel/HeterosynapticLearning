@@ -12,6 +12,15 @@
 
 ## Merge branches
 
+## Testing
+
+# From Meeting
+- run sweeps on C matrix
+- ReadMe, Comments
+- test on simple transformer task
+    - likely we should split between attn / mlp layers 
+    - optional dataset: PennTreeBank, ....
+
 
 After:
 - Define & Run Sweeps
