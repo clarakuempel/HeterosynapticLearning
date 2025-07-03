@@ -1,14 +1,17 @@
 import hydra
-
+import lightning as L
 from omegaconf import DictConfig, OmegaConf
 from lightning import Trainer
-from data.mnist_datamodule import MNISTDataModule
+from lightning.pytorch.core.module import LightningModule
+from lightning.pytorch.core.datamodule import LightningDataModule
 from lightning.pytorch.loggers import Logger
 import rootutils
+from typing import Optional
+import wandb
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-def train(cfg : DictConfig) -> None:
+def train(cfg : DictConfig) -> float:
     """
     Trains the model
     """
@@ -33,18 +36,19 @@ def train(cfg : DictConfig) -> None:
     trainer.validate(model, datamodule)
     trainer.test(model, datamodule)
 
-    return None    
+    metric_value = model.val_acc_best.compute().item()
+    wandb.finish()
+    return metric_value
 
 
 @hydra.main(version_base=None, config_path="../conf", config_name="config")
-def main(cfg: DictConfig) -> None:
+def main(cfg: DictConfig) -> Optional[float]:
     """Main entry point for training.
 
     :param cfg: DictConfig configuration composed by Hydra.
     """
     print(OmegaConf.to_yaml(cfg))
-    train(cfg)
-    return None
+    return train(cfg) 
 
 
 

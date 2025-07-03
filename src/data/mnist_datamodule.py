@@ -17,7 +17,9 @@ class MNISTDataModule(L.LightningDataModule):
         self.mnist_train: Optional[Dataset] = None
         self.mnist_val: Optional[Dataset] = None
         self.mnist_test: Optional[Dataset] = None
-        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: x.view(-1))])    
+        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: x.view(-1))])   
+        self.batch_size = batch_size   
+        self.save_hyperparameters()
     
     def prepare_data(self):
         os.makedirs(self.data_dir, exist_ok=True)

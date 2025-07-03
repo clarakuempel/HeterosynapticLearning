@@ -4,3 +4,6 @@
 
 This project is based on PyTorch Lightning and Hydra. We use Python 3.11
 
+## Run sweep
+
+> $ python src/train.py -m hparams_search=mnist_optuna

@@ -8,13 +8,9 @@ defaults:
   - pruning: basic
   - corruption: basic
   - trainer: default
-
-hydra:
-  sweep:
-    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
-    subdir: ${hydra:job.num}
-  
+  - hydra: default
+  - hparams_search: mnist_optuna
 
 save_dir: logs/ # for wandb
-epochs: 10
 seed: null
+task_name: "train"
