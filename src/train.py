@@ -38,6 +38,17 @@ def train(cfg : DictConfig) -> Optional[float]:
     trainer.fit(model, datamodule)
 
     trainer.validate(model, datamodule)
+
+    # If pruning is enabled prune and re-train
+    # NOTE: for now no pruning rounds
+    if cfg['pruning']['enable'] == True:
+        model.prune()
+        trainer.validate(model, datamodule)
+        print("Re-initializing trainer for pruning...")
+        trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
+        trainer.fit(model, datamodule)
+
+    trainer.validate(model, datamodule)
     trainer.test(model, datamodule)
 
     metric_value = model.val_acc_best.compute().item()

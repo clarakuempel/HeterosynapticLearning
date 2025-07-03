@@ -1,4 +1,4 @@
-_target_: src.utils.prune.NMPruning
+enable: True
 N: 2
 M: 4
 prune_rounds: 1

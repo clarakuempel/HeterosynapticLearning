@@ -4,3 +4,4 @@
 _target_: src.data.mnist_datamodule.MNISTDataModule
 data_dir: data/
 batch_size: 128 
+
