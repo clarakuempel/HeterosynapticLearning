@@ -11,13 +11,13 @@ import wandb
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
-def train(cfg : DictConfig) -> float:
+def train(cfg : DictConfig) -> Optional[float]:
     """
     Trains the model
     """
 
-    if cfg.get("seed"):
-        L.seed_everything(cfg.seed, workers=True)
+    # if cfg.get("seed"):
+    #     L.seed_everything(cfg.seed, workers=True)
 
     print(f"Instantiating datamodule <{cfg.data._target_}>")
     datamodule: LightningDataModule = hydra.utils.instantiate(cfg.data)
@@ -27,6 +27,10 @@ def train(cfg : DictConfig) -> float:
 
     print(f"Instantiating logger ...")
     logger: Logger = hydra.utils.instantiate(cfg.logger)
+
+    # Manually log config to WandB
+    wandb_config = OmegaConf.to_container(cfg, resolve=True)
+    logger.experiment.config.update(wandb_config)
 
     print(f"Instantiating trainer ...")
     trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)

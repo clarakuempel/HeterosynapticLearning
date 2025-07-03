@@ -13,9 +13,8 @@ class MLP_module(LightningModule):
     """
     A lightning module for a simple MLP model with optional corruption and pruning.
     """
-    def __init__(self, net, pruning, optimizer, batch_size=None):
+    def __init__(self, net, pruning, optimizer):
         super().__init__()
-        self.batch_size = batch_size
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.cfg_pruning = pruning
@@ -39,7 +38,8 @@ class MLP_module(LightningModule):
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
 
-        self.save_hyperparameters()
+        self.save_hyperparameters()        
+        print(self.hparams["optimizer"]["lr"])
         
     def forward(self, x):
         return self.net(x)
@@ -52,8 +52,6 @@ class MLP_module(LightningModule):
         self.val_acc.reset()
         self.val_acc_best.reset()
 
-        # Log hyperparameters
-        self.log("hparams/batch_size", float(self.batch_size), on_step=False, on_epoch=True)
 
     def model_step(
         self, batch: Tuple[torch.Tensor, torch.Tensor]

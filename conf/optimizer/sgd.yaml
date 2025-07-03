@@ -1,4 +1,8 @@
-update_alg: "gd"  
-weight_decay: 0.0
 lr: 0.01
+weight_decay: 0.0
+update_alg: "gd"  
+block_size: 4
+alpha: 0.1
 momentum: 0.0
+dampening: 0.0
+nesterov: false

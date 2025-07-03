@@ -8,6 +8,5 @@ net:
   output_size: 10
   corruption: ${corruption} # Corruption is an argument to the model
 
-batch_size: ${data.batch_size} 
 pruning: ${pruning}
 optimizer: ${optimizer}
