@@ -1,0 +1,72 @@
+import subprocess
+import os
+CONDA_ENV_NAME = "my_conda_env"
+SCRATCH = os.environ.get("SCRATCH", "/scratch")
+PROJECT = "hp-learning-rules"
+REPO_DIR = os.path.abspath(".")  # adjust if needed
+TMP_SHARED = os.environ.get("TMP_SHARED", "/tmp/shared_data")
+SWEEP_CONFIG = "optuna"
+
+# Parameters that represent each unique optimisation space
+corruption_types = ["identity", "full_dense", "block_diagonal"]
+optimizers = ["md", "gd"]
+
+sweep_config = "corruptions"
+for corruption in corruption_types:
+    for opt in optimizers:
+        study_name = f"study_{corruption}_{opt}"
+        group = f"{corruption}_{opt}"
+        folder = os.path.join("slurm_logs", study_name)
+
+        
+        # Create the batch script as a multi-line string
+        template_script = dedent(f"""\
+            #!/bin/bash
+            #SBATCH --job-name=hp_search_{corruption}_{opt}
+            #SBATCH --output=logs/hp_search_{corruption}_{opt}_%j.out
+            #SBATCH --error=logs/hp_search_{corruption}_{opt}_%j.err
+            #SBATCH --time=4:00:00
+            #SBATCH --gres=gpu:1
+            #SBATCH --mem=16G
+            #SBATCH --cpus-per-task=4
+
+            module load miniforge
+            conda activate $HOME/{CONDA_ENV_NAME}
+
+            export CUDA_DEVICE_ORDER=PCI_BUS_ID
+
+            LOGGING="{SCRATCH}/{PROJECT}/{folder}"
+            if [ -d "$LOGGING" ]; then
+              echo "Experiment already run: $LOGGING exists. Exiting."
+              exit 1
+            fi
+
+            mkdir -p "$LOGGING"
+            CHKP="$LOGGING/last.ckpt"
+
+            cd $SLURM_TMPDIR
+            echo "Copying data from {REPO_DIR} into {TMP_SHARED}"
+            cp -r "{REPO_DIR}/data" "{TMP_SHARED}/data"
+
+        """)
+
+        cmd = [
+            "python", "src/train.py",
+            f"corruption.corruption_type={corruption}",
+            f"optimizer.update_alg={opt}",
+            f"hydra.sweeper.study_name={study_name}",
+            f"logger.group={group}",
+            f"hparams_search={sweep_config}"
+        ]
+
+        # Add the command to run the script
+        batch_script = template_script + "\n" + " ".join(cmd) + "\n"
+
+        # Write the script to a temp file (can be named uniquely)
+        script_filename = f"tmp.sh"
+
+        with open(script_filename, "w") as f:
+            f.write(batch_script)
+
+        # Launch the job using sbatch
+        subprocess.run(["sbatch", script_filename])
