@@ -10,7 +10,6 @@ SWEEP_CONFIG = "optuna"
 corruption_types = ["identity", "full_dense", "block_diagonal"]
 optimizers = ["md", "gd"]
 
-sweep_config = "corruptions"
 for corruption in corruption_types:
     for opt in optimizers:
         study_name = f"study_{corruption}_{opt}"
@@ -39,7 +38,7 @@ for corruption in corruption_types:
             mkdir -p "$LOGGING"
             CHKP="$LOGGING/last.ckpt"
 
-            cd ${REPO_DIR}
+            cd {REPO_DIR}
             echo "Copying data from {REPO_DIR}/data into $TMP_SHARED/data"
             cp -r "{REPO_DIR}/data" "$TMP_SHARED/data"
 
@@ -51,7 +50,7 @@ for corruption in corruption_types:
             f"optimizer.update_alg={opt}",
             f"hydra.sweeper.study_name={study_name}",
             f"logger.group={group}",
-            f"hparams_search={sweep_config}"
+            f"hparams_search={SWEEP_CONFIG}",
             f"logger.project={PROJECT}"
         ]
 
