@@ -2,7 +2,7 @@ import subprocess
 from textwrap import dedent
 import os
 CONDA_ENV_NAME = "HL-env"
-PROJECT = "hp-learning-rules"
+PROJECT = "test-hydra-sweeps"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "optuna"
 
@@ -25,6 +25,7 @@ for corruption in corruption_types:
             #SBATCH --output=logs/hp_search_{corruption}_{opt}_%j.out
             #SBATCH --error=logs/hp_search_{corruption}_{opt}_%j.err
             #SBATCH --time=4:00:00
+            #SBATCH --partition=gpu
             #SBATCH --gres=gpu:1
             #SBATCH --mem=16G
             #SBATCH --cpus-per-task=4
@@ -44,7 +45,7 @@ for corruption in corruption_types:
             CHKP="$LOGGING/last.ckpt"
 
             cd $SLURM_TMPDIR
-            echo "Copying data from {REPO_DIR} into $TMP_SHARED"
+            echo "Copying data from {REPO_DIR}/data into $TMP_SHARED/data"
             cp -r "{REPO_DIR}/data" "$TMP_SHARED/data"
 
         """)
@@ -56,6 +57,7 @@ for corruption in corruption_types:
             f"hydra.sweeper.study_name={study_name}",
             f"logger.group={group}",
             f"hparams_search={sweep_config}"
+            f"logger.project={project}"
         ]
 
         # Add the command to run the script

@@ -4,6 +4,8 @@
 *.out
 /data/
 /wandb/
+tmp.sh
+slurm-logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
