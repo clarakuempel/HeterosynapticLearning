@@ -57,7 +57,7 @@ for corruption in corruption_types:
             f"hydra.sweeper.study_name={study_name}",
             f"logger.group={group}",
             f"hparams_search={sweep_config}"
-            f"logger.project={project}"
+            f"logger.project={PROJECT}"
         ]
 
         # Add the command to run the script
