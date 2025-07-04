@@ -1,11 +1,11 @@
 import subprocess
 from textwrap import dedent
 import os
-CONDA_ENV_NAME = "my_conda_env"
-SCRATCH = os.environ.get("SCRATCH", "/scratch")
+CONDA_ENV_NAME = "HL-env"
+SCRATCH = os.environ["SCRATCH"]
 PROJECT = "hp-learning-rules"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
-TMP_SHARED = os.environ.get("TMP_SHARED", "/tmp/shared_data")
+TMP_SHARED = os.environ["TMP_SHARED"]
 SWEEP_CONFIG = "optuna"
 
 # Parameters that represent each unique optimisation space
@@ -71,3 +71,5 @@ for corruption in corruption_types:
 
         # Launch the job using sbatch
         subprocess.run(["sbatch", script_filename])
+        break
+    break
