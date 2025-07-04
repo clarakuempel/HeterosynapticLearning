@@ -15,15 +15,14 @@ for corruption in corruption_types:
     for opt in optimizers:
         study_name = f"study_{corruption}_{opt}"
         group = f"{corruption}_{opt}"
-        folder = os.path.join("slurm_logs", study_name)
-
+        name = f"hp_search_{corruption}_{opt}"
         
         # Create the batch script as a multi-line string
         template_script = dedent(f"""\
             #!/bin/bash
-            #SBATCH --job-name=hp_search_{corruption}_{opt}
-            #SBATCH --output=logs/hp_search_{corruption}_{opt}_%j.out
-            #SBATCH --error=logs/hp_search_{corruption}_{opt}_%j.err
+            #SBATCH --job-name={name}
+            #SBATCH --output=slurm-logs/{name}_%j.out
+            #SBATCH --error=slurm-logs/{name}_%j.err
             #SBATCH --time=4:00:00
             #SBATCH --partition=gpu
             #SBATCH --gres=gpu:1
@@ -35,7 +34,7 @@ for corruption in corruption_types:
 
             export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
-            LOGGING="$SCRATCH/{PROJECT}/{folder}"
+            LOGGING="$SCRATCH/{PROJECT}/{study_name}"
             if [ -d "$LOGGING" ]; then
               echo "Experiment already run: $LOGGING exists. Exiting."
               exit 1
