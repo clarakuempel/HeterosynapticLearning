@@ -35,15 +35,11 @@ for corruption in corruption_types:
             export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
             LOGGING="$SCRATCH/{PROJECT}/{study_name}"
-            if [ -d "$LOGGING" ]; then
-              echo "Experiment already run: $LOGGING exists. Exiting."
-              exit 1
-            fi
 
             mkdir -p "$LOGGING"
             CHKP="$LOGGING/last.ckpt"
 
-            cd $SLURM_TMPDIR
+            cd ${REPO_DIR}
             echo "Copying data from {REPO_DIR}/data into $TMP_SHARED/data"
             cp -r "{REPO_DIR}/data" "$TMP_SHARED/data"
 
@@ -60,7 +56,7 @@ for corruption in corruption_types:
         ]
 
         # Add the command to run the script
-        batch_script = template_script + "\n" + " ".join(cmd) + "\n"
+        batch_script = template_script + "\n" + " ".join(cmd) + "\n" + "echo 'Job completed.'\n"
 
         # Write the script to a temp file (can be named uniquely)
         script_filename = f"tmp.sh"
