@@ -142,7 +142,7 @@ class MLP_module(LightningModule):
                 block_size=self.cfg_optimizer['block_size'],
                 alpha=self.cfg_optimizer['alpha'],
             )
-        elif self.cfg_optimizer['update_alg'] == "sgd":
+        elif self.cfg_optimizer['update_alg'] == "gd":
             # use the SGD optimizer
             return torch.optim.SGD(
                 params=self.parameters(),

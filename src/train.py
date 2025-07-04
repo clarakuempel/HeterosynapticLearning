@@ -23,7 +23,7 @@ def train(cfg : DictConfig) -> Optional[float]:
 
     print(f"Instantiating logger ...")
     logger: Logger = hydra.utils.instantiate(cfg.logger)
-    full_config = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
+    full_config = OmegaConf.to_container(cfg, resolve=True)
     logger.experiment.config.update(prepare_config(full_config))
 
     print(f"Instantiating datamodule <{cfg.data._target_}>")

@@ -1,6 +1,7 @@
 # @package _global_
 defaults:
-  - override /hydra/sweeper: grid  # This will look for conf/hydra/sweeper/optuna.yaml
+  - override /hydra/sweeper: optuna
+  - override /hydra/sweeper/sampler: tpe
 
 optimized_metric: "val/val_acc_best"
 
@@ -8,23 +9,17 @@ hydra:
   mode: MULTIRUN
 
   sweeper:
-    _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
     n_jobs: 1
+    n_trials: 5
     direction: maximize
-    n_trials: 100
-
-    # choose Optuna hyperparameter sampler
-    # you can choose bayesian sampler (tpe), random search (without optimization), grid sampler, and others
-    # docs: https://optuna.readthedocs.io/en/stable/reference/samplers.html
+    storage: null
+    study_name: "corruptions"
 
     sampler:
-      _target_: optuna.samplers.GridSampler # RandomSampler, GridSampler, TPESampler,...
+      seed: 123
 
-      search_space:
-        corruption.corruption_type: choice('identity','full_dense', 'block_diagonal')
-        corruption.alpha: choice(0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99)
-        optimizer: choice ('hp', 'gd')
-        optimizer.lr: choice(0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0)
-        optimizer.weight_decay: choice(0.0001 0.001 0.01 0.1 1)
-        optimizer.block_size: choice(2, 4, 6, 8)
-
+    params:
+      optimizer.lr: choice(0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0)
+      optimizer.weight_decay: choice(0.0001, 0.001, 0.01, 0.1, 1)
+      optimizer.block_size: choice(2, 4, 6, 8)
+      optimizer.alpha: choice(0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99)

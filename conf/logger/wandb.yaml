@@ -1,6 +1,6 @@
 # This is necessary as it uses the lightning wandb logger
 _target_: lightning.pytorch.loggers.wandb.WandbLogger
-project: "test-hydra"
+project: "test-hydra-sweeps"
 entity : "hp-learning-rules"
 save_dir: ${save_dir}
 offline: False
