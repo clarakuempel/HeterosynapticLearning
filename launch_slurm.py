@@ -2,10 +2,8 @@ import subprocess
 from textwrap import dedent
 import os
 CONDA_ENV_NAME = "HL-env"
-SCRATCH = os.environ["SCRATCH"]
 PROJECT = "hp-learning-rules"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
-TMP_SHARED = os.environ["TMP_SHARED"]
 SWEEP_CONFIG = "optuna"
 
 # Parameters that represent each unique optimisation space
@@ -36,7 +34,7 @@ for corruption in corruption_types:
 
             export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
-            LOGGING="{SCRATCH}/{PROJECT}/{folder}"
+            LOGGING="$SCRATCH/{PROJECT}/{folder}"
             if [ -d "$LOGGING" ]; then
               echo "Experiment already run: $LOGGING exists. Exiting."
               exit 1
@@ -46,8 +44,8 @@ for corruption in corruption_types:
             CHKP="$LOGGING/last.ckpt"
 
             cd $SLURM_TMPDIR
-            echo "Copying data from {REPO_DIR} into {TMP_SHARED}"
-            cp -r "{REPO_DIR}/data" "{TMP_SHARED}/data"
+            echo "Copying data from {REPO_DIR} into $TMP_SHARED"
+            cp -r "{REPO_DIR}/data" "$TMP_SHARED/data"
 
         """)
 
