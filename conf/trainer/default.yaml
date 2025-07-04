@@ -11,4 +11,4 @@ devices: auto
 check_val_every_n_epoch: 1
 deterministic: False
 
-callbacks: ${trainer.early_stopping}
+# callbacks: ${trainer.early_stopping}

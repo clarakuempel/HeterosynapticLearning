@@ -38,7 +38,7 @@ class MLP_module(LightningModule):
 
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
-        self.save_hyperparameters()        
+        self.save_hyperparameters(ignore=['net', 'optimizer', 'pruning'])        
 
     def prune(self):
         # TODO: implement the pruning rounds

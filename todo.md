@@ -1,6 +1,5 @@
 # ToDos
-
-- Merge branches
+- ~~Merge branches~~
 - Fix logging to wandb (cleaning the unused, make them pretty)
 - Write ReadMe
 - Comment Code

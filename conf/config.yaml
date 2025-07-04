@@ -9,7 +9,7 @@ defaults:
   - corruption: basic
   - trainer: default
   - hydra: default
-  - hparams_search: corruptions
+  - hparams_search: null
 
 save_dir: logs/ # for wandb
 seed: null
