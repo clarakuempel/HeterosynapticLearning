@@ -13,7 +13,7 @@ for corruption in corruption_types:
         group = f"{corruption}_{opt}"
         
         cmd = [
-            "python", "src/train.py",
+            "python", "src/train.py", "-m"
             f"corruption.corruption_type={corruption}",
             f"optimizer.update_alg={opt}",
             f"hydra.sweeper.study_name={study_name}",
