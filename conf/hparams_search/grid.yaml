@@ -20,4 +20,7 @@ hydra:
       optimizer.weight_decay: choice(0.0001, 0.001, 0.01, 0.1, 1)
       optimizer.block_size: choice(2, 4, 6, 8)
       optimizer.alpha: choice(0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99)
-      # batch size: grid(...) if needed
+      data.batch_size: choice(64, 128, 256)
+      model.net.hidden_size1: choice(250, 500)
+      model.net.hidden_size2: choice(250, 500)
+      model.net.hidden_size3: choice(250, 500)

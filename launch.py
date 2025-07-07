@@ -4,7 +4,7 @@ from textwrap import dedent
 
 # --- Config ---
 SWEEP_CONFIG = "grid"
-PROJECT = f"hydra-sweeps-{SWEEP_CONFIG}"
+PROJECT = f"test-hydra-sweeps-{SWEEP_CONFIG}"
 
 # Optimization parameter grids
 corruption_types = ["identity", "full_dense", "block_diagonal"]
