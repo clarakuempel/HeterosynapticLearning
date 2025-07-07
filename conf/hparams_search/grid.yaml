@@ -1,6 +1,7 @@
 # @package _global_
 defaults:
-  - override /hydra/sweeper: grid
+  - override /hydra/sweeper: optuna
+  - override /hydra/sweeper/sampler: grid
 
 optimized_metric: "val/val_acc_best"
 
@@ -8,8 +9,15 @@ hydra:
   mode: MULTIRUN
 
   sweeper:
+    n_jobs: 1
+    n_trials: 100000  # large enough to cover full grid
+    direction: maximize
+    storage: null
+    study_name: "null"
+
     params:
-      optimizer.lr: 0.001,0.01,0.05,0.1,0.5,1.0,2.0,5.0
-      optimizer.weight_decay: 0.0001,0.001,0.01,0.1,1
-      optimizer.block_size: 2,4,6,8
-      optimizer.alpha: 0.01,0.1,0.25,0.5,0.75,0.9,0.95,0.99
+      optimizer.lr: choice(0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0)
+      optimizer.weight_decay: choice(0.0001, 0.001, 0.01, 0.1, 1)
+      optimizer.block_size: choice(2, 4, 6, 8)
+      optimizer.alpha: choice(0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99)
+      # batch size: grid(...) if needed
