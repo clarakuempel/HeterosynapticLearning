@@ -2,9 +2,9 @@ import subprocess
 from textwrap import dedent
 import os
 CONDA_ENV_NAME = "HL-env"
-PROJECT = "test-hydra-sweeps"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "optuna"
+PROJECT = f"hydra-sweeps-{SWEEP_CONFIG}"
 
 # Parameters that represent each unique optimisation space
 corruption_types = ["identity", "full_dense", "block_diagonal"]
@@ -14,14 +14,14 @@ for corruption in corruption_types:
     for opt in optimizers:
         study_name = f"study_{corruption}_{opt}"
         group = f"{corruption}_{opt}"
-        name = f"hp_search_{corruption}_{opt}"
+        name = f"{corruption}_{opt}"
         
         # Create the batch script as a multi-line string
         template_script = dedent(f"""\
             #!/bin/bash
             #SBATCH --job-name={name}
-            #SBATCH --output=slurm-logs/{name}_%j.out
-            #SBATCH --error=slurm-logs/{name}_%j.err
+            #SBATCH --output=slurm-logs/{PROJECT}/{name}_%j.out
+            #SBATCH --error=slurm-logs/{PROJECT}/{name}_%j.err
             #SBATCH --time=4:00:00
             #SBATCH --partition=gpu
             #SBATCH --gres=gpu:1
@@ -65,5 +65,3 @@ for corruption in corruption_types:
 
         # Launch the job using sbatch
         subprocess.run(["sbatch", script_filename])
-        break
-    break

@@ -10,7 +10,7 @@ hydra:
 
   sweeper:
     n_jobs: 1
-    n_trials: 1
+    n_trials: 100
     direction: maximize
     storage: null
     study_name: "corruptions"
