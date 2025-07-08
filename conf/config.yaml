@@ -11,6 +11,5 @@ defaults:
   - hydra: default
   - hparams_search: null
 
-save_dir: logs/ # for wandb
 seed: null
 task_name: "train"

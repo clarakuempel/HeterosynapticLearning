@@ -18,6 +18,7 @@ for corruption in corruption_types:
             group = f"{corruption}_{opt}_{alpha}"
             name = f"{corruption}_{opt}_{alpha}"
 
+            data_dir = "$TMP_SHARED"
             # Create the batch script as a multi-line string
             template_script = dedent(f"""\
                 #!/bin/bash
@@ -40,21 +41,24 @@ for corruption in corruption_types:
                 mkdir -p "$LOGGING"
                 CHKP="$LOGGING/last.ckpt"
 
-                cd {REPO_DIR}
-                echo "Copying data from {REPO_DIR}/data into $TMP_SHARED/data"
-                cp -r "{REPO_DIR}/data" "$TMP_SHARED/data"
+                cd $LOGGING
+                echo "Copying data from {REPO_DIR}/data into {data_dir}/data"
+                cp -r "{REPO_DIR}/data" "{data_dir}/data"
 
             """)
 
             cmd = [
-                "python", "src/train.py", "-m", 
+                "python", f"{REPO_DIR}/src/train.py", "-m", 
                 f"corruption.corruption_type={corruption}",
                 f"optimizer.update_alg={opt}",
                 f"optimizer.alpha={alpha}",
                 f"hydra.sweeper.study_name={study_name}",
-                f"logger.group={group}",
                 f"hparams_search={SWEEP_CONFIG}",
-                f"logger.project={PROJECT}"
+
+                f"logger.group={group}",
+                f"logger.save_dir=$LOGGING",
+                f"logger.project={PROJECT}",
+                f"data.data_dir={data_dir}/data"
             ]
 
             if opt == "md":
