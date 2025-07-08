@@ -11,5 +11,6 @@ defaults:
   - hydra: default
   - hparams_search: null
 
+save_dir: logs/
 seed: null
 task_name: "train"

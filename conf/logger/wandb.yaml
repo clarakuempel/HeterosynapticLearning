@@ -2,7 +2,7 @@
 _target_: lightning.pytorch.loggers.wandb.WandbLogger
 project: "test-hydra-sweeps"
 entity : "hp-learning-rules"
-save_dir: logs/
+save_dir: ${save_dir}
 offline: False
 id: null # pass correct id to resume experiment!
 anonymous: null # enable anonymous logging

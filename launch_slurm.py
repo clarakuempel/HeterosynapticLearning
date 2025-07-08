@@ -3,7 +3,7 @@ from textwrap import dedent
 import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
-SWEEP_CONFIG = "optuna"
+SWEEP_CONFIG = "grid"
 PROJECT = f"hydra-sweeps-{SWEEP_CONFIG}"
 
 # Parameters that represent each unique optimisation space
@@ -56,14 +56,10 @@ for corruption in corruption_types:
                 f"hparams_search={SWEEP_CONFIG}",
 
                 f"logger.group={group}",
-                f"logger.save_dir=$LOGGING",
+                f"save_dir=$LOGGING",
                 f"logger.project={PROJECT}",
-                f"data.data_dir={data_dir}/data"
+                f"data.data_dir={data_dir}/data",
             ]
-
-            if opt == "md":
-                # disable wd for mirror descent
-                cmd.append(f"hydra.sweeper.params.optimizer.weight_decay=choice(0)")
 
             # Add the command to run the script
             batch_script = template_script + "\n" + " ".join(cmd) + "\n" + "echo 'Job completed.'\n"
