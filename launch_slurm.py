@@ -9,17 +9,8 @@ PROJECT = f"hydra-sweeps-{SWEEP_CONFIG}"
 # Parameters that represent each unique optimisation space
 corruption_types = ["identity", "full_dense", "block_diagonal"]
 alphas = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99] # 8
-optimizers = ['md', 'gd'] # 2
-weight_decay = [0.0001, 0.001, 0.01, 0.1, 1] # 5
-
-for opt in optimizers:
-    for corruption in corruption_types:
-        if opt == 'md':
-            for alpha in alphas:
-                launch_job(opt, corruption, alpha, weight_decay)
-        else:  # 'gd'
-            for wd in weight_decay:
-                launch_job(opt, corruption, 0.0, wd)
+optimizers = ['gd', 'md'] # 2
+weight_decays = [0.0001, 0.001, 0.01, 0.1, 1] # 5
 
 
 # TODO This can be made cleaner and more elegant with kwargs
@@ -87,3 +78,13 @@ def launch_job(opt, corruption, alpha, weight_decay):
 
     # Launch the job using sbatch
     subprocess.run(["sbatch", script_filename])
+
+
+for opt in optimizers:
+    for corruption in corruption_types:
+        if opt == 'md':
+            for alpha in alphas:
+                launch_job(opt, corruption, alpha, 0.0)
+        else:  # 'gd'
+            for wd in weight_decays:
+                launch_job(opt, corruption, 0.0, wd)

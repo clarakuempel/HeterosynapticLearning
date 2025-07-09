@@ -62,7 +62,7 @@ def main(cfg: DictConfig) -> Optional[float]:
 
     :param cfg: DictConfig configuration composed by Hydra.
     """
-    print(OmegaConf.to_yaml(cfg))
+    #print(OmegaConf.to_yaml(cfg))
     return train(cfg) 
 
 
