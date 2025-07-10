@@ -7,20 +7,22 @@ SWEEP_CONFIG = "grid"
 PROJECT = f"hydra-sweeps-{SWEEP_CONFIG}"
 
 # Parameters that represent each unique optimisation space
-corruption_types = ["identity", "full_dense", "block_diagonal"]
+# corruption_types = ["identity", "full_dense", "block_diagonal"]
+corruption_types = ["identity"]
 alphas = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99] # 8
+lrs = [0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0] # 7
 optimizers = ['gd', 'md'] # 2
 weight_decays = [0.0001, 0.001, 0.01, 0.1, 1] # 5
 
 
 # TODO This can be made cleaner and more elegant with kwargs
-def launch_job(opt, corruption, alpha, weight_decay):
+def launch_job(opt, lr, alpha, weight_decay):
     """
     Launch a job on SLURM with the specified parameters.
     """
-    study_name = f"study_{corruption}_{opt}_{alpha}"
-    group = f"{corruption}_{opt}_{alpha}"
-    name = f"{corruption}_{opt}_{alpha}"
+    study_name = f"study_{lr}_{opt}_{alpha}"
+    group = f"{lr}_{opt}_{alpha}"
+    name = f"{lr}_{opt}_{alpha}"
 
     data_dir = "$TMP_SHARED"
     # Create the batch script as a multi-line string
@@ -54,7 +56,7 @@ def launch_job(opt, corruption, alpha, weight_decay):
     cmd = [
         "python", f"{REPO_DIR}/src/train.py", "-m", 
 
-        f"corruption.corruption_type={corruption}",
+        f"optimizer.lr={lr}",
         f"optimizer.update_alg={opt}",
         f"optimizer.alpha={alpha}",
         f"optimizer.weight_decay={weight_decay}",
@@ -81,10 +83,10 @@ def launch_job(opt, corruption, alpha, weight_decay):
 
 
 for opt in optimizers:
-    for corruption in corruption_types:
+    for lr in lrs:
         if opt == 'md':
             for alpha in alphas:
-                launch_job(opt, corruption, alpha, 0.0)
+                launch_job(opt, lr, alpha, 0.0)
         else:  # 'gd'
             for wd in weight_decays:
-                launch_job(opt, corruption, 0.0, wd)
+                launch_job(opt, lr, 0.0, wd)
