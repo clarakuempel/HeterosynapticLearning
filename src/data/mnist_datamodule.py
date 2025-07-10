@@ -10,10 +10,11 @@ from torchvision.transforms import transforms
 import os
 
 class MNISTDataModule(L.LightningDataModule):
-    def __init__(self, data_dir: str = "./data", batch_size: int = 32):
+    def __init__(self, data_dir: str = "./data", batch_size: int = 32, num_workers: int = 4):
         super().__init__()
         self.data_dir = data_dir 
         self.batch_size = batch_size
+        self.num_workers = num_workers
         self.mnist_train: Optional[Dataset] = None
         self.mnist_val: Optional[Dataset] = None
         self.mnist_test: Optional[Dataset] = None
@@ -46,21 +47,23 @@ class MNISTDataModule(L.LightningDataModule):
     
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.mnist_train, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
 
     def val_dataloader(self):
-        return DataLoader(self.mnist_val, batch_size=self.batch_size)
+        return DataLoader(self.mnist_val, batch_size=self.batch_size, num_workers=self.num_workers)
 
     def test_dataloader(self):
-        return DataLoader(self.mnist_test, batch_size=self.batch_size)
+        return DataLoader(self.mnist_test, batch_size=self.batch_size, num_workers=self.num_workers)
 
     def predict_dataloader(self):
-        return DataLoader(self.mnist_predict, batch_size=self.batch_size)
+        return DataLoader(self.mnist_predict, batch_size=self.batch_size, num_workers=self.num_workers)
 
     def teardown(self, stage: str):
         # Used to clean-up when the run is finished
         # TODO: have a look into this for cleaning up & multiruns
         pass
+
+
 
 if __name__ == "__main__":
     _ = MNISTDataModule()
