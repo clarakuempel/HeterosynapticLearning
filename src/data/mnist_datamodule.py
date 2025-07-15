@@ -18,7 +18,10 @@ class MNISTDataModule(L.LightningDataModule):
         self.mnist_train: Optional[Dataset] = None
         self.mnist_val: Optional[Dataset] = None
         self.mnist_test: Optional[Dataset] = None
-        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Lambda(lambda x: x.view(-1))])   
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            torch.nn.Flatten(start_dim=0)
+        ])
         self.batch_size = batch_size   
         self.save_hyperparameters()
     
