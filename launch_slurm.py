@@ -4,15 +4,15 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"hydra-sweeps-{SWEEP_CONFIG}"
+PROJECT = f"rerun-corruption-{SWEEP_CONFIG}"
 
 # Parameters that represent each unique optimisation space
 # corruption_types = ["identity", "full_dense", "block_diagonal"]
-corruption_types = ["identity"]
+corruption_types = ["block_diagonal", "full_dense"]
 alphas = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99] # 8
-lrs = [0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0] # 7
+lrs = [0.001, 0.01, 0.05, 0.1, 0.5, 1.0] # 7
 optimizers = ['gd', 'md'] # 2
-weight_decays = [0.0001, 0.001, 0.01, 0.1, 1] # 5
+weight_decays = [0.0001, 0.001, 0.01] # 5
 
 
 # TODO This can be made cleaner and more elegant with kwargs
