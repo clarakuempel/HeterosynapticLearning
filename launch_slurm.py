@@ -23,8 +23,8 @@ grid = {
         # "optimizer.update_alg": ['gd'],
         # "optimizer.weight_decay": [0.0001, 0.001, 0.01, 0.0],
     # },
-    "adam": {
-        "optimizer.update_alg": ['adam'],
+    "adamW": {
+        "optimizer.update_alg": ['adamW'],
         "optimizer.weight_decay": [0.0001, 0.001, 0.01, 0.0],
     }
 }
