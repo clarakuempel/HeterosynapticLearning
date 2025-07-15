@@ -8,7 +8,7 @@ PROJECT = f"test-hydra-sweeps-{SWEEP_CONFIG}"
 
 # Optimization parameter grids
 corruption_types = ["identity", "full_dense", "block_diagonal"]
-optimizers = ["md", "gd"]
+optimizers = ["adamW"]
 
 # --- Launch Loop ---
 for corruption in corruption_types:

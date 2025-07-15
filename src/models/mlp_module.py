@@ -158,5 +158,11 @@ class MLP_module(LightningModule):
                 lr=self.cfg_optimizer['lr'],
                 weight_decay=self.cfg_optimizer['weight_decay'],
             )
+        elif self.cfg_optimizer['update_alg'] == "adamW":
+            return torch.optim.AdamW(
+                params=self.parameters(),
+                lr=self.cfg_optimizer['lr'],
+                weight_decay=self.cfg_optimizer['weight_decay'],
+            )
         else:
             raise ValueError(f"Unsupported optimizer: {self.cfg_optimizer['update_alg']}")
