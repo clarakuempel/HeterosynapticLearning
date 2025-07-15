@@ -5,13 +5,14 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"rerun-corruption-{SWEEP_CONFIG}"
+PROJECT = f"hydra-sweeps-{SWEEP_CONFIG}"
 
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
         "corruption.corruption_type": ["block_diagonal", "full_dense"],
-        "optimizer.lr": [0.001, 0.01, 0.05, 0.1, 0.5, 1.0],
+        # Lr is searched in the grid.yaml file as it is global
+        # "optimizer.lr": [0.001, 0.01, 0.05, 0.1, 0.5, 1.0],
     },
     # "md": {
         # "optimizer.update_alg": ['md'],
