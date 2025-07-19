@@ -18,8 +18,8 @@ def train(cfg : DictConfig) -> Optional[float]:
     Trains the model
     """
 
-    # if cfg.get("seed"):
-    #     L.seed_everything(cfg.seed, workers=True)
+    if cfg.get("seed"):
+        L.seed_everything(cfg.seed, workers=True)
 
     print(f"Instantiating logger ...")
     logger: Logger = hydra.utils.instantiate(cfg.logger)
