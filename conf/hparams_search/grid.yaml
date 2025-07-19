@@ -16,11 +16,6 @@ hydra:
     study_name: "null"
 
     params:
-      optimizer.lr: choice(0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0) # 7
+      seed: choice(1, 2, 3)
       # data.batch_size: choice(64, 128, 256, 512) 
       # trainer.max_epochs: choice(15, 20, 30)
-      # optimizer.block_size: choice(4) # 1
-      # model.net.hidden_size1: choice(250, 500) # 2
-      # model.net.hidden_size2: choice(250, 500) # 2
-      # model.net.hidden_size3: choice(250, 500) # 2
-       
