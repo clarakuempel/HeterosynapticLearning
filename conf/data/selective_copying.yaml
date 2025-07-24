@@ -1,0 +1,20 @@
+_target_: src.data.selective_copying_datamodule.SelectiveCopyingDataModule
+l_noise: 100
+l_memorize: 10
+n_tokens: 10
+variable: true
+variable_length: false
+one_hot: false
+reverse: false
+batch_size: 32
+num_workers: 4
+train_size: 50000
+val_size: 5000
+test_size: 5000
+seed: 42
+
+# dataset properties
+# sequence_length: Total input sequence length
+# input_size: Input vocabulary size
+# output_size: Output vocabulary size
+# target_length: Target sequence length
