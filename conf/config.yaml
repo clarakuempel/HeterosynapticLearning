@@ -1,9 +1,9 @@
 
 defaults:
   - _self_ # to avoid a warning
-  - data: mnist 
+  - data: selective_copying 
   - optimizer: default
-  - model: basic_mlp
+  - model: small_nanoGPT
   - logger: wandb
   - pruning: basic
   - corruption: basic

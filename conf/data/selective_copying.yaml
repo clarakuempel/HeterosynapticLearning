@@ -1,4 +1,4 @@
-_target_: src.data.selective_copying_datamodule.SelectiveCopyingDataModule
+_target_: src.data.selectivecopying_datamodule.SelectiveCopyingDataModule
 l_noise: 100
 l_memorize: 10
 n_tokens: 10

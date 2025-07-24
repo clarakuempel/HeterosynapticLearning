@@ -92,21 +92,22 @@ class SelectiveCopyingDataset(Dataset):
         self.one_hot = one_hot
         self.reverse = reverse
         
+        # NOTE: seeds are managed with lightning
         # Set seed for reproducibility
-        if seed is not None:
-            self.rng = torch.Generator()
-            self.rng.manual_seed(seed)
-        else:
-            self.rng = None
+        # if seed is not None:
+            # self.rng = torch.Generator()
+            # self.rng.manual_seed(seed)
+        # else:
+            # self.rng = None
     
     def __len__(self):
         return self.length
     
     def __getitem__(self, idx):
         # Set seed based on index for reproducible samples
-        if self.rng is not None:
-            old_state = torch.get_rng_state()
-            torch.manual_seed(self.rng.initial_seed() + idx)
+        # if self.rng is not None:
+            # old_state = torch.get_rng_state()
+            # torch.manual_seed(self.rng.initial_seed() + idx)
         
         x, y = torch_copying_data(
             L=self.l_noise,
@@ -120,8 +121,8 @@ class SelectiveCopyingDataset(Dataset):
         )
         
         # Restore random state
-        if self.rng is not None:
-            torch.set_rng_state(old_state)
+        # if self.rng is not None:
+            # torch.set_rng_state(old_state)
         
         return x, y
 
@@ -301,7 +302,7 @@ if __name__ == "__main__":
     # Test the datamodule
     dm = SelectiveCopyingDataModule(
         l_noise=10,
-        l_memorize=5,
+        l_memorize=6,
         n_tokens=10,
         variable=True,
         batch_size=4,
@@ -317,6 +318,15 @@ if __name__ == "__main__":
     # Get a batch
     batch = next(iter(train_loader))
     x, y = batch
+
+    full_sequence = torch.cat((x, y), dim=1)
+
+    batch_size, total_len = full_sequence.shape
+    Lx = x.size(1)
+    Ly = y.size(1)
+
+    loss_mask = torch.zeros((batch_size, total_len - 1), dtype=torch.bool, device=x.device)
+    loss_mask[:, -(Ly - 1):] = True  # Mask only the target tokens
     
     print(f"Input shape: {x.shape}")  # [batch size, sequence_length]
     print(f"Target shape: {y.shape}") # [batch size, positions to predict]
@@ -328,3 +338,18 @@ if __name__ == "__main__":
     print(x[0])
     print("\nSample target sequence:")
     print(y[0])
+
+    print("\nFull sequence:")
+    print(full_sequence[0])
+
+    lm_input = full_sequence[0][:-1]   # length total_len - 1
+    lm_target = full_sequence[0][1:]   # length total_len - 1
+
+    print("\nLM input sequence with and without loss mask applied:")
+    print(lm_input[loss_mask[0]])
+    print(lm_input)
+
+    print("\nLM target sequence with and without loss mask applied:")
+    print(lm_target[loss_mask[0]])
+    print(lm_target)
+    

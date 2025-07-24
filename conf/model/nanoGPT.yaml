@@ -1,0 +1,13 @@
+_target_: src.models.gpt_module.GPT_module
+net:
+  _target_: src.models.components.nanoGPT.GPT
+  config:
+    block_size: 1024
+    vocab_size: 50304
+    n_layer: 12
+    n_head: 12
+    n_embd: 768
+    dropout: 0.0
+    bias: True
+
+optimizer: ${optimizer}
