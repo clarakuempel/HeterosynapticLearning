@@ -10,27 +10,21 @@ from torchmetrics.classification.accuracy import Accuracy
 
 from src.utils import apply_nm_pruning
 
-class MLP_module(LightningModule):
-    """
-    A lightning module for a simple MLP model with optional corruption and pruning.
-    """
-    def __init__(self, net, pruning, optimizer):
-        super().__init__()
-        # this line allows to access init params with 'self.hparams' attribute
-        # also ensures init params will be stored in ckpt
-        self.cfg_pruning = pruning
-        self.cfg_optimizer = optimizer
-        # Net
-        self.net = net
-            
-        # loss function
-        self.criterion = torch.nn.CrossEntropyLoss()
 
+class GPT_module(LightningModule):
+    """
+    A lightning module for a nanoGPT
+    """
+    def __init__(self, net): # for now only net, future add pruning and corruption
+        self.net = net
+
+        # criterion is implemented in the nanoGPT 
+        
         # metric objects for calculating and averaging accuracy across batches
         self.train_acc = Accuracy(task="multiclass", num_classes=10)
         self.val_acc = Accuracy(task="multiclass", num_classes=10)
         self.test_acc = Accuracy(task="multiclass", num_classes=10)
-
+        
         # for averaging loss across batches
         self.train_loss = MeanMetric()
         self.val_loss = MeanMetric()
@@ -38,18 +32,7 @@ class MLP_module(LightningModule):
 
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
-        self.save_hyperparameters(ignore=['net', 'optimizer', 'pruning'])        
-
-    def prune(self):
-        # TODO: implement the pruning rounds
-        apply_nm_pruning(
-            self.net,
-            self.cfg_pruning['N'],
-            self.cfg_pruning['M'],
-        )
-
-    def forward(self, x):
-        return self.net(x)
+        self.save_hyperparameters(ignore=['net'])        
 
     def on_train_start(self) -> None:
         """Lightning hook that is called when training begins."""
@@ -63,14 +46,16 @@ class MLP_module(LightningModule):
         self, batch: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x, y = batch
-        logits = self.forward(x)
-        loss = self.criterion(logits, y)
-        preds = torch.argmax(logits, dim=1)
+        assert x.ndim == 2, "Input tensor must be 2D (batch_size, sequence_length)"
+        assert y.shape == x.shape, f"Target shape {y.shape} must match input shape {x.shape}"
+        logits = self.net(x) # b,t,vocab
+
+        # flatten for CE
+        loss = self.criterion(logits.view(-1, logits.size(-1)), y.view(-1)) 
+        preds = torch.argmax(logits, dim=-1)  # (b, t)
         return loss, preds, y
- 
-    def training_step(
-        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
-    ) -> torch.Tensor:
+
+    def training_step(self, batch, batch_idx: int) -> torch.Tensor:
         """Perform a single training step on a batch of data from the training set.
 
         :param batch: A batch of data (a tuple) containing the input tensor of images and target
@@ -88,7 +73,7 @@ class MLP_module(LightningModule):
 
         # return loss or backpropagation will fail
         return loss
-    
+
     def validation_step(
         self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
@@ -102,7 +87,7 @@ class MLP_module(LightningModule):
         self.log("val/acc", self.val_acc, on_step=False, on_epoch=True, prog_bar=True)
 
         return loss
-    
+
     def test_step(
         self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
     ) -> torch.Tensor:
@@ -116,7 +101,7 @@ class MLP_module(LightningModule):
         self.log("test/acc", self.test_acc, on_step=False, on_epoch=True, prog_bar=True)
 
         return loss
-    
+
     def on_validation_epoch_end(self) -> None:
         """Lightning hook that is called when a validation epoch ends."""
         acc = self.val_acc.compute()  
@@ -134,34 +119,42 @@ class MLP_module(LightningModule):
             return HP_SGD(
                 params=self.parameters(),
                 lr=self.cfg_optimizer['lr'],
-                momentum=self.cfg_optimizer['momentum'],
-                dampening=self.cfg_optimizer['dampening'],
-                weight_decay=self.cfg_optimizer['weight_decay'],
-                nesterov=self.cfg_optimizer['nesterov'],
                 block_size=self.cfg_optimizer['block_size'],
                 alpha=self.cfg_optimizer['alpha'],
             )
-        elif self.cfg_optimizer['update_alg'] == "gd":
+        # if the optimizer is not MD we need to separate params into decay and nodecay
+        decay_params, nodecay_params = self.net.get_params_for_optimizer()
+
+        optim_groups = [
+            {"params": decay_params, "weight_decay": self.cfg_optimizer['weight_decay']},
+            {"params": nodecay_params, "weight_decay": 0.0}
+        ]
+
+        if self.cfg_optimizer['update_alg'] == "gd":
             # use the SGD optimizer
             return torch.optim.SGD(
-                params=self.parameters(),
+                optim_groups,
                 lr=self.cfg_optimizer['lr'],
                 momentum=self.cfg_optimizer['momentum'],
                 dampening=self.cfg_optimizer['dampening'],
                 weight_decay=self.cfg_optimizer['weight_decay'],
                 nesterov=self.cfg_optimizer['nesterov'],
             )
+
         elif self.cfg_optimizer['update_alg'] == "adam":
             return torch.optim.Adam(
-                params=self.parameters(),
+                optim_groups,
                 lr=self.cfg_optimizer['lr'],
                 weight_decay=self.cfg_optimizer['weight_decay'],
+                betas=(self.cfg_optimizer['beta1'], self.cfg_optimizer['beta2']),
             )
+
         elif self.cfg_optimizer['update_alg'] == "adamW":
             return torch.optim.AdamW(
-                params=self.parameters(),
+                optim_groups,
                 lr=self.cfg_optimizer['lr'],
                 weight_decay=self.cfg_optimizer['weight_decay'],
+                betas=(self.cfg_optimizer['beta1'], self.cfg_optimizer['beta2']),
             )
         else:
             raise ValueError(f"Unsupported optimizer: {self.cfg_optimizer['update_alg']}")
