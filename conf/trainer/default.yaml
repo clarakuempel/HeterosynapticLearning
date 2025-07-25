@@ -3,12 +3,13 @@ _target_: lightning.pytorch.trainer.Trainer
 # Uses this to save ckp and logs if no logger is provided
 default_root_dir: ${save_dir} 
 
-min_epochs: 1 # prevents early stopping
-max_epochs: 30
+min_epochs: 20 # prevents early stopping
+max_epochs: 50
 
 accelerator: auto
 devices: auto
 check_val_every_n_epoch: 1
 deterministic: False
 
-# callbacks: ${trainer.early_stopping}
+callbacks:
+  - ${trainer.callbacks}

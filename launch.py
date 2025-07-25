@@ -39,3 +39,5 @@ for corruption in corruption_types:
 
         print("Running command:", " ".join(cmd))
         subprocess.run(cmd)
+        break
+    break

@@ -6,7 +6,7 @@ CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
 PROJECT = f"test-gpt-{SWEEP_CONFIG}"
-
+data = False # add the data param?
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
@@ -80,7 +80,7 @@ def launch_job(**hp):
         f"logger.group={group}",
         f"save_dir=$LOGGING",
         f"logger.project={PROJECT}",
-        f"data.data_dir={data_dir}/data",
+        f"data.data_dir={data_dir}/data" if data else "",
     ]
 
     # the keu is the name of the hyperparameter, the value is the value to set it to
