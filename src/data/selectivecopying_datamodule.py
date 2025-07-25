@@ -94,20 +94,20 @@ class SelectiveCopyingDataset(Dataset):
         
         # NOTE: seeds are managed with lightning
         # Set seed for reproducibility
-        # if seed is not None:
-            # self.rng = torch.Generator()
-            # self.rng.manual_seed(seed)
-        # else:
-            # self.rng = None
+        if seed is not None:
+            self.rng = torch.Generator()
+            self.rng.manual_seed(seed)
+        else:
+            self.rng = None
     
     def __len__(self):
         return self.length
     
     def __getitem__(self, idx):
         # Set seed based on index for reproducible samples
-        # if self.rng is not None:
-            # old_state = torch.get_rng_state()
-            # torch.manual_seed(self.rng.initial_seed() + idx)
+        if self.rng is not None:
+            old_state = torch.get_rng_state()
+            torch.manual_seed(self.rng.initial_seed() + idx)
         
         x, y = torch_copying_data(
             L=self.l_noise,
@@ -121,8 +121,8 @@ class SelectiveCopyingDataset(Dataset):
         )
         
         # Restore random state
-        # if self.rng is not None:
-            # torch.set_rng_state(old_state)
+        if self.rng is not None:
+            torch.set_rng_state(old_state)
         
         return x, y
 

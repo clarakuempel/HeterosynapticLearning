@@ -2,11 +2,11 @@ _target_: src.models.gpt_module.GPT_module
 net:
   _target_: src.models.components.nanoGPT.GPT
   config:
-    block_size: 1024
+    block_size: 120
     vocab_size: ${data.n_tokens}
-    n_layer: 12
-    n_head: 12
-    n_embd: 768
+    n_layer: 2
+    n_head: 4
+    n_embd: 128
     dropout: 0.0
     bias: True
 
