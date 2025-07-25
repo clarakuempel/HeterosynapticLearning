@@ -95,19 +95,18 @@ class SelectiveCopyingDataset(Dataset):
         # NOTE: seeds are managed with lightning
         # Set seed for reproducibility
         if seed is not None:
-            self.rng = torch.Generator()
-            self.rng.manual_seed(seed)
+            self.seed = seed
         else:
-            self.rng = None
+            self.seed = None
     
     def __len__(self):
         return self.length
     
     def __getitem__(self, idx):
         # Set seed based on index for reproducible samples
-        if self.rng is not None:
+        if self.seed is not None:
             old_state = torch.get_rng_state()
-            torch.manual_seed(self.rng.initial_seed() + idx)
+            torch.manual_seed(self.seed + idx)
         
         x, y = torch_copying_data(
             L=self.l_noise,
@@ -121,7 +120,7 @@ class SelectiveCopyingDataset(Dataset):
         )
         
         # Restore random state
-        if self.rng is not None:
+        if self.seed is not None:
             torch.set_rng_state(old_state)
         
         return x, y
@@ -183,6 +182,15 @@ class SelectiveCopyingDataModule(L.LightningDataModule):
         self.predict_dataset: Optional[Dataset] = None
         
         self.save_hyperparameters()
+
+        # DEBUG
+        print(f'SelectiveCopyingDataModule initialized with parameters:\n'
+                f'l_noise: {self.l_noise}, l_memorize: {self.l_memorize}, n_tokens: {self.n_tokens}, \n'
+                f'variable: {self.variable}, variable_length: {self.variable_length}, one_hot: {self.one_hot}, \n'
+                f'reverse: {self.reverse}, batch_size: {self.batch_size}, num_workers: {self.num_workers}, \n'
+                f'train_size: {self.train_size}, val_size: {self.val_size}, test_size: {self.test_size}, \n'
+                f'seed: {self.seed}')
+        
     
     def prepare_data(self):
         # Nothing to download or prepare for synthetic data
@@ -301,8 +309,8 @@ class SelectiveCopyingDataModule(L.LightningDataModule):
 if __name__ == "__main__":
     # Test the datamodule
     dm = SelectiveCopyingDataModule(
-        l_noise=10,
-        l_memorize=6,
+        l_noise=100,
+        l_memorize=10,
         n_tokens=10,
         variable=True,
         batch_size=4,
@@ -327,7 +335,7 @@ if __name__ == "__main__":
 
     loss_mask = torch.zeros((batch_size, total_len - 1), dtype=torch.bool, device=x.device)
     loss_mask[:, -(Ly - 1):] = True  # Mask only the target tokens
-    
+
     print(f"Input shape: {x.shape}")  # [batch size, sequence_length]
     print(f"Target shape: {y.shape}") # [batch size, positions to predict]
     print(f"Sequence length: {dm.sequence_length}") # total input sequence length
