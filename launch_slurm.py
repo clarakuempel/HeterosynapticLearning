@@ -5,14 +5,14 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"test-gpt-{SWEEP_CONFIG}"
+PROJECT = f"sweep-gpt-{SWEEP_CONFIG}"
 data = False # add the data param?
+
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
         # "corruption.corruption_type": ["identity", "block_diagonal", "full_dense"],
         "optimizer.lr": [0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0],
-        "trainer.max_epochs": [50],
     },
     "md": {
         "optimizer.update_alg": ['md'],
@@ -142,5 +142,3 @@ for space, params in grid.items():
         }
         # Launch the job with the hyperparameters
         launch_job(**hp)
-        break
-    break
