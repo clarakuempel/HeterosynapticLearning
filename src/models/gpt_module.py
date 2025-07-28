@@ -24,9 +24,10 @@ class GPT_module(LightningModule):
         self.criterion = nn.CrossEntropyLoss(reduction='mean')
         
         # metric objects for calculating and averaging accuracy across batches
-        self.train_acc = Accuracy(task="multiclass", num_classes=10)
-        self.val_acc = Accuracy(task="multiclass", num_classes=10)
-        self.test_acc = Accuracy(task="multiclass", num_classes=10)
+        vocab_size = net.config.vocab_size
+        self.train_acc = Accuracy(task="multiclass", num_classes=vocab_size)
+        self.val_acc = Accuracy(task="multiclass", num_classes=vocab_size)
+        self.test_acc = Accuracy(task="multiclass", num_classes=vocab_size)
         
         # for averaging loss across batches
         self.train_loss = MeanMetric()

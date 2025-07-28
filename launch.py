@@ -34,7 +34,7 @@ for corruption in corruption_types:
             f"hydra.sweeper.study_name={study_name}",
             f"logger.group={group}",
             f"hparams_search={SWEEP_CONFIG}",
-            f"logger.project={PROJECT}"
+            f"logger.project={PROJECT}",
         ]
 
         print("Running command:", " ".join(cmd))

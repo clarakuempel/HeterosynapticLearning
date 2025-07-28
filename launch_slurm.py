@@ -5,7 +5,7 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"sweep-gpt-{SWEEP_CONFIG}"
+PROJECT = f"sweep-gpt-2048-{SWEEP_CONFIG}"
 data = False # add the data param?
 
 # Parameters that represent each unique optimisation space
