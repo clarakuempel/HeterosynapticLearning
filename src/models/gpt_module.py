@@ -50,30 +50,14 @@ class GPT_module(LightningModule):
         self, batch: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x, y = batch
-        full_sequence = torch.cat((x, y), dim=1)  # (B, Lx + Ly)
+        logits = self.net(x)
 
-        input_seq = full_sequence[:, :-1]
-        target_seq = full_sequence[:, 1:]
-
-        logits = self.net(input_seq)  # (B, T, vocab)
-
-        batch_size, total_len = full_sequence.shape
-        Lx = x.size(1)
-        Ly = y.size(1)
-
-        # Mask only on target tokens (last Ly-1 positions)
-        loss_mask = torch.zeros((batch_size, total_len - 1), dtype=torch.bool, device=x.device)
-        loss_mask[:, -(Ly - 1):] = True
-
-        # Apply mask
-        logits = logits[loss_mask]       # (N_masked, vocab)
-        targets = target_seq[loss_mask]  # (N_masked,)
-
-        loss = self.criterion(logits, targets)
+        # DEGUB
+        loss = self.criterion(logits.view(-1, logits.size(-1)), y.view(-1))
 
         preds = torch.argmax(logits, dim=-1)  # (B, T)
 
-        return loss, preds, targets
+        return loss, preds, y
 
     def training_step(self, batch, batch_idx: int) -> torch.Tensor:
         """Perform a single training step on a batch of data from the training set.

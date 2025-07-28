@@ -118,6 +118,13 @@ class SelectiveCopyingDataset(Dataset):
             one_hot=self.one_hot,
             reverse=self.reverse
         )
+
+        # x and y are 1 dim
+        # add len(y) 0s to the end of x
+        x_size = x.size(0)
+        x = torch.cat((x, torch.zeros(self.l_memorize, dtype=x.dtype, device=x.device)))
+        # add len(x) 0s to the start of y
+        y = torch.cat((torch.zeros(x_size, dtype=y.dtype, device=y.device), y))
         
         # Restore random state
         if self.seed is not None:
@@ -309,8 +316,8 @@ class SelectiveCopyingDataModule(L.LightningDataModule):
 if __name__ == "__main__":
     # Test the datamodule
     dm = SelectiveCopyingDataModule(
-        l_noise=100,
-        l_memorize=10,
+        l_noise=10,
+        l_memorize=2,
         n_tokens=10,
         variable=True,
         batch_size=4,
