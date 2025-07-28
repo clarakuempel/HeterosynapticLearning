@@ -57,18 +57,21 @@ class GPT_module(LightningModule):
         x = torch.cat((x, torch.zeros(batch_size, l_memorize, dtype=x.dtype, device=x.device)), dim=-1)
         y = torch.cat((torch.zeros(batch_size, x_size, dtype=y.dtype, device=y.device), y), dim=-1)
 
+        logits = self.net(x)
+
         # mask out the x part of the logits
         loss_mask = torch.ones_like(x, device=x.device, dtype=torch.bool)
         loss_mask[:, :x_size] = False
 
-        logits = self.net(x)
-        # apply the loss mask to the logits
-        logits = logits[loss_mask]
-        y = y[loss_mask]
+        logits = logits[loss_mask].view(batch_size, -1, logits.size(-1))  # B, T, C
+        y = y[loss_mask].view(batch_size, -1)  # B, T
 
+        # print(f"logits: {logits.shape}, y: {y.shape}")
+        # Flatten logits and y for loss calculation
         loss = self.criterion(logits.view(-1, logits.size(-1)), y.view(-1))
 
-        preds = torch.argmax(logits, dim=1) # B, T
+        preds = torch.argmax(logits, dim=-1) # B, T
+        # print(f"preds: {preds.shape}, y: {y.shape}")
 
         return loss, preds, y
 
@@ -85,8 +88,8 @@ class GPT_module(LightningModule):
         # update and log metrics
         self.train_loss(loss)
         self.train_acc(preds, targets)
-        self.log("train/loss", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("train/acc", self.train_acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/loss", self.train_loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("train/acc", self.train_acc, on_step=True, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
         return loss
