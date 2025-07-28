@@ -50,12 +50,25 @@ class GPT_module(LightningModule):
         self, batch: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x, y = batch
-        logits = self.net(x)
 
-        # DEGUB
+        x_size = x.size(-1)
+        l_memorize = y.size(-1)
+        batch_size = x.size(0)
+        x = torch.cat((x, torch.zeros(batch_size, l_memorize, dtype=x.dtype, device=x.device)), dim=-1)
+        y = torch.cat((torch.zeros(batch_size, x_size, dtype=y.dtype, device=y.device), y), dim=-1)
+
+        # mask out the x part of the logits
+        loss_mask = torch.ones_like(x, device=x.device, dtype=torch.bool)
+        loss_mask[:, :x_size] = False
+
+        logits = self.net(x)
+        # apply the loss mask to the logits
+        logits = logits[loss_mask]
+        y = y[loss_mask]
+
         loss = self.criterion(logits.view(-1, logits.size(-1)), y.view(-1))
 
-        preds = torch.argmax(logits, dim=-1)  # (B, T)
+        preds = torch.argmax(logits, dim=1) # B, T
 
         return loss, preds, y
 

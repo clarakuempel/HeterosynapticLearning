@@ -119,12 +119,13 @@ class SelectiveCopyingDataset(Dataset):
             reverse=self.reverse
         )
 
+        # TESTING
         # x and y are 1 dim
         # add len(y) 0s to the end of x
-        x_size = x.size(0)
-        x = torch.cat((x, torch.zeros(self.l_memorize, dtype=x.dtype, device=x.device)))
+        # x_size = x.size(0)
+        # x = torch.cat((x, torch.zeros(self.l_memorize, dtype=x.dtype, device=x.device)))
         # add len(x) 0s to the start of y
-        y = torch.cat((torch.zeros(x_size, dtype=y.dtype, device=y.device), y))
+        # y = torch.cat((torch.zeros(x_size, dtype=y.dtype, device=y.device), y))
         
         # Restore random state
         if self.seed is not None:
@@ -332,16 +333,28 @@ if __name__ == "__main__":
     
     # Get a batch
     batch = next(iter(train_loader))
+    # x, y = batch
+
+    # full_sequence = torch.cat((x, y), dim=1)
+
+    # batch_size, total_len = full_sequence.shape
+    # Lx = x.size(1)
+    # Ly = y.size(1)
+
+    # loss_mask = torch.zeros((batch_size, total_len - 1), dtype=torch.bool, device=x.device)
+    # loss_mask[:, -(Ly - 1):] = True  # Mask only the target tokens
+
     x, y = batch
 
-    full_sequence = torch.cat((x, y), dim=1)
+    x_size = x.size(-1)
+    l_memorize = y.size(-1)
+    batch_size = x.size(0)
+    x = torch.cat((x, torch.zeros(batch_size, l_memorize, dtype=x.dtype, device=x.device)), dim=-1)
+    y = torch.cat((torch.zeros(batch_size, x_size, dtype=y.dtype, device=y.device), y), dim=-1)
 
-    batch_size, total_len = full_sequence.shape
-    Lx = x.size(1)
-    Ly = y.size(1)
-
-    loss_mask = torch.zeros((batch_size, total_len - 1), dtype=torch.bool, device=x.device)
-    loss_mask[:, -(Ly - 1):] = True  # Mask only the target tokens
+    # mask out the x part of the logits
+    loss_mask = torch.ones_like(x, device=x.device, dtype=torch.bool)
+    loss_mask[:, :x_size] = False
 
     print(f"Input shape: {x.shape}")  # [batch size, sequence_length]
     print(f"Target shape: {y.shape}") # [batch size, positions to predict]
@@ -354,17 +367,5 @@ if __name__ == "__main__":
     print("\nSample target sequence:")
     print(y[0])
 
-    print("\nFull sequence:")
-    print(full_sequence[0])
-
-    lm_input = full_sequence[0][:-1]   # length total_len - 1
-    lm_target = full_sequence[0][1:]   # length total_len - 1
-
-    print("\nLM input sequence with and without loss mask applied:")
-    print(lm_input[loss_mask[0]])
-    print(lm_input)
-
-    print("\nLM target sequence with and without loss mask applied:")
-    print(lm_target[loss_mask[0]])
-    print(lm_target)
-    
+    print("\nLoss mask:")
+    print(loss_mask[0])
