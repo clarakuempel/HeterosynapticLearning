@@ -2,7 +2,7 @@ _target_: src.models.gpt_module.GPT_module
 net:
   _target_: src.models.components.nanoGPT.GPT
   config:
-    block_size: 2048
+    block_size: 130
     vocab_size: ${data.n_tokens}
     n_layer: 2
     n_head: 4
