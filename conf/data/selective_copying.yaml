@@ -1,7 +1,7 @@
 _target_: src.data.selectivecopying_datamodule.SelectiveCopyingDataModule
-l_noise: 100
-l_memorize: 10
-n_tokens: 10
+l_noise: 2000
+l_memorize: 16
+n_tokens: 16
 variable: true
 variable_length: false
 one_hot: false
