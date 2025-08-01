@@ -5,20 +5,24 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"test-gpt-{SWEEP_CONFIG}"
+PROJECT = f"sweep-gpt-mdm-{SWEEP_CONFIG}"
 data = False # add the data param?
 
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
         # "corruption.corruption_type": ["identity", "block_diagonal", "full_dense"],
-        "optimizer.lr": [0.5],
+        "optimizer.lr": [0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0],
     },
     "md": {
         "optimizer.update_alg": ['md'],
-        "optimizer.block_size": [4],
-        "optimizer.alpha": [0.5],
-        "optimizer.momentum": [0.0],
+        "optimizer.block_size": [2, 4, 6, 8],
+        "optimizer.alpha": [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99],
+        "optimizer.momentum": [0.9],
+    },
+    "adam": {
+        "optimizer.update_alg": ['adam'],
+        "optimizer.weight_decay": [0.0001, 0.001, 0.01, 0.0],
     }
 }
     
