@@ -8,3 +8,14 @@ dampening: 0.0
 nesterov: false
 beta1: 0.9
 beta2: 0.999
+
+lr_scheduler: "cosine"  # options: "None", "cosine", "steplr"
+
+# cosine lr scheduler
+T_max: ${trainer.max_epochs}
+eta_min: 0.0
+
+# steplr lr scheduler
+step_size: 30
+gamma: 0.1
+

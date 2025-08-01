@@ -10,6 +10,7 @@ from torchmetrics.classification.accuracy import Accuracy
 
 from src.utils import apply_nm_pruning
 
+import hydra
 
 class GPT_module(LightningModule):
     """
@@ -134,15 +135,6 @@ class GPT_module(LightningModule):
 
     def configure_optimizers(self):
         # optim alg
-        if self.cfg_optimizer['update_alg'] == "md":
-            # use the HP_SGD optimizer
-            return HP_SGD(
-                params=self.parameters(),
-                lr=self.cfg_optimizer['lr'],
-                block_size=self.cfg_optimizer['block_size'],
-                alpha=self.cfg_optimizer['alpha'],
-                momentum=self.cfg_optimizer['momentum'],
-            )
         # if the optimizer is not MD we need to separate params into decay and nodecay
         decay_params, nodecay_params = self.net.get_params_for_optimizer()
 
@@ -151,9 +143,20 @@ class GPT_module(LightningModule):
             {"params": nodecay_params, "weight_decay": 0.0}
         ]
 
-        if self.cfg_optimizer['update_alg'] == "gd":
+
+        optimizer = None
+        if self.cfg_optimizer['update_alg'] == "md":
+            # use the HP_SGD optimizer
+            optimizer =  HP_SGD(
+                params=self.parameters(),
+                lr=self.cfg_optimizer['lr'],
+                block_size=self.cfg_optimizer['block_size'],
+                alpha=self.cfg_optimizer['alpha'],
+                momentum=self.cfg_optimizer['momentum'],
+            )
+        elif self.cfg_optimizer['update_alg'] == "gd":
             # use the SGD optimizer
-            return torch.optim.SGD(
+            optimizer = torch.optim.SGD(
                 optim_groups,
                 lr=self.cfg_optimizer['lr'],
                 momentum=self.cfg_optimizer['momentum'],
@@ -163,7 +166,7 @@ class GPT_module(LightningModule):
             )
 
         elif self.cfg_optimizer['update_alg'] == "adam":
-            return torch.optim.Adam(
+            optimizer = torch.optim.Adam(
                 optim_groups,
                 lr=self.cfg_optimizer['lr'],
                 weight_decay=self.cfg_optimizer['weight_decay'],
@@ -171,11 +174,40 @@ class GPT_module(LightningModule):
             )
 
         elif self.cfg_optimizer['update_alg'] == "adamW":
-            return torch.optim.AdamW(
+            optimizer = torch.optim.AdamW(
                 optim_groups,
                 lr=self.cfg_optimizer['lr'],
                 weight_decay=self.cfg_optimizer['weight_decay'],
                 betas=(self.cfg_optimizer['beta1'], self.cfg_optimizer['beta2']),
             )
+
         else:
-            raise ValueError(f"Unsupported optimizer: {self.cfg_optimizer['update_alg']}")
+            raise ValueError(f"Unknown optimizer: {self.cfg_optimizer['update_alg']}")
+
+        lr_scheduler = None
+        if self.cfg_optimizer['lr_scheduler'] == "cosine":
+            lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer=optimizer,
+                T_max=self.cfg_optimizer['T_max'],
+                eta_min=self.cfg_optimizer['eta_min']
+            )
+        elif self.cfg_optimizer['lr_scheduler'] == "steplr":
+            lr_scheduler = torch.optim.lr_scheduler.StepLR(
+                optimizer=optimizer,
+                step_size=self.cfg_optimizer['step_size'],
+                gamma=self.cfg_optimizer['gamma']
+            )
+        elif self.cfg_optimizer['lr_scheduler'] != "None":
+            raise ValueError(f"Unknown lr_scheduler: {self.cfg_optimizer['lr_scheduler']}")
+
+        config = {
+            "optimizer": optimizer,
+        }
+            
+        if lr_scheduler is not None:
+            config["lr_scheduler"] = {
+                "scheduler": lr_scheduler,
+                "monitor": "val/acc_best"
+            }
+
+        return config
