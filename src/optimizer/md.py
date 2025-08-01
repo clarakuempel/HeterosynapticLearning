@@ -30,23 +30,14 @@ class HP_SGD(Optimizer):
     - alpha, to control the strength of the coupling
     """
 
-    def __init__(self, params, lr=required, momentum=0.0, dampening=0.0,
-                 weight_decay=0.0, nesterov=False, update_alg="gd", block_size=4, alpha=0.1):
+    def __init__(self, params, lr=required, update_alg="md", block_size=4, alpha=0.1):
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
-        if momentum < 0.0:
-            raise ValueError("Invalid momentum value: {}".format(momentum))
-        if weight_decay < 0.0:
-            raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
-        if update_alg not in ["gd", "md"]:
+        if update_alg not in ["md"]:
             raise ValueError("Invalid update_alg value: {}".format(update_alg))
-        if nesterov and (momentum <= 0 or dampening != 0):
-            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
 
 
-        defaults = dict(lr=lr, momentum=momentum, dampening=dampening,
-                        weight_decay=weight_decay, nesterov=nesterov,
-                        update_alg=update_alg, block_size=block_size, alpha=alpha)
+        defaults = dict(lr=lr, update_alg=update_alg, block_size=block_size, alpha=alpha)
 
         super(HP_SGD, self).__init__(params, defaults)
 
@@ -56,8 +47,6 @@ class HP_SGD(Optimizer):
 
     def __setstate__(self, state):
         super(HP_SGD, self).__setstate__(state)
-        for group in self.param_groups:
-            group.setdefault('nesterov', False)
 
     @torch.no_grad()
     def step(self, closure=None, log=False):
@@ -68,105 +57,44 @@ class HP_SGD(Optimizer):
                 and returns the loss.
             log (bool, optional): If True, logs the update to the logger.
         """
-        loss = None
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
 
         for group in self.param_groups:
             params_with_grad = []
-            d_p_list = []
-            momentum_buffer_list = []
+            grads = []
+            exp_avgs = []
 
             # this is from optim.sgd._init_group
             for p in group['params']:
                 if p.grad is not None:
                     params_with_grad.append(p)
-                    d_p_list.append(p.grad)
-                    state = self.state[p]
-                    if 'momentum_buffer' not in state:
-                        momentum_buffer_list.append(None)
-                    else:
-                        momentum_buffer_list.append(state['momentum_buffer'])
+                    grads.append(p.grad)
 
-            param_update = sgd(params=params_with_grad,
-                grads=d_p_list,
-                momentum_buffers=momentum_buffer_list,
-                weight_decay=group['weight_decay'],
-                momentum=group['momentum'],
+            sgd(params=params_with_grad,
+                grads=grads,
                 lr=group['lr'],
-                dampening=group['dampening'],
-                nesterov=group['nesterov'],
-                update_alg=group['update_alg'],
                 block_size=group['block_size'],
-                alpha=group['alpha'],
                 hessian=group['hessian']
                 )
-
-            if log and param_update is not None:
-                for p, update in zip(params_with_grad, param_update):
-                    name = self.param_to_name.get(p, "unknown")
-                    # log_update(update, name)
-
-            # update momentum_buffers in state
-            for p, momentum_buffer in zip(params_with_grad, momentum_buffer_list):
-                state = self.state[p]
-                state['momentum_buffer'] = momentum_buffer
-
-        return loss
 
 
 def sgd(params: List[Tensor],
         grads: List[Tensor],
-        momentum_buffers: List[Optional[Tensor]],
         *,
-        weight_decay: float,
-        momentum: float,
         lr: float,
-        dampening: float,
-        nesterov: bool,
-        update_alg: str,
         block_size: int,
-        alpha: float,
         hessian,
         ):
 
-    # Loop over the parameters
-    param_updates = []
     for param_idx, param in enumerate(params):
         grad = grads[param_idx]
-        if weight_decay != 0 and update_alg == "gd":
-            grad = grad.add(param.sign(), alpha=weight_decay)
 
-        if momentum != 0:
-            momentum_buf = momentum_buffers[param_idx]
-
-            if momentum_buf is None:
-                momentum_buf = torch.clone(grad).detach()
-                momentum_buffers[param_idx] = momentum_buf
-            else:
-                momentum_buf.mul_(momentum).add_(grad, alpha=1 - dampening)
-
-            if nesterov:
-                grad = grad.add(momentum_buf, alpha=momentum)
-            else:
-                grad = momentum_buf
-
-
-        if update_alg == 'gd':
+        if param.ndim == 1:
             param.add_(grad, alpha=-lr)
-            param_updates.append(grad * -lr)
-        elif update_alg == "md":
-            # If the parameter is a bias do a normal gradient descent step
-            if param.ndim == 1:
-                param.add_(grad, alpha=-lr)
-                param_updates.append(grad * -lr)
-            else:
-                param_update = mirror_descent_update(param, grad, hessian, block_size, lr)
-
-                param_updates.append(param_update)
-
-    return param_updates if param_updates else None
+        else:
+            mirror_descent_update(param, grad, hessian, block_size, lr)
 
 
 def mirror_descent_update(param, grad, hessian, block_size, lr):
@@ -185,4 +113,3 @@ def mirror_descent_update(param, grad, hessian, block_size, lr):
         update = (g.reshape(-1, block_size) @ hessian.inverse()).flatten()
 
     param.add_(update.reshape_as(param), alpha=-lr)
-    return update.reshape_as(param) * -lr
