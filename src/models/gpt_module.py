@@ -141,6 +141,7 @@ class GPT_module(LightningModule):
                 lr=self.cfg_optimizer['lr'],
                 block_size=self.cfg_optimizer['block_size'],
                 alpha=self.cfg_optimizer['alpha'],
+                momentum=self.cfg_optimizer['momentum'],
             )
         # if the optimizer is not MD we need to separate params into decay and nodecay
         decay_params, nodecay_params = self.net.get_params_for_optimizer()

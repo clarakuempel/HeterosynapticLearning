@@ -18,6 +18,7 @@ grid = {
         "optimizer.update_alg": ['md'],
         "optimizer.block_size": [4],
         "optimizer.alpha": [0.5],
+        "optimizer.momentum": [0.9],
     }
 }
     

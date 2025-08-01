@@ -30,14 +30,16 @@ class HP_SGD(Optimizer):
     - alpha, to control the strength of the coupling
     """
 
-    def __init__(self, params, lr=required, update_alg="md", block_size=4, alpha=0.1):
+    def __init__(self, params, lr=required, momentum=0.0, update_alg="md", block_size=4, alpha=0.1):
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if update_alg not in ["md"]:
             raise ValueError("Invalid update_alg value: {}".format(update_alg))
+        if not (0.0 <= momentum < 1.0):
+            raise ValueError(f"Invalid momentum value: {momentum}")
 
 
-        defaults = dict(lr=lr, update_alg=update_alg, block_size=block_size, alpha=alpha)
+        defaults = dict(lr=lr, momentum=momentum, update_alg=update_alg, block_size=block_size, alpha=alpha)
 
         super(HP_SGD, self).__init__(params, defaults)
 
@@ -49,7 +51,7 @@ class HP_SGD(Optimizer):
         super(HP_SGD, self).__setstate__(state)
 
     @torch.no_grad()
-    def step(self, closure=None, log=False):
+    def step(self, closure=None):
         """Performs a single optimization step.
 
         Args:
@@ -64,32 +66,49 @@ class HP_SGD(Optimizer):
         for group in self.param_groups:
             params_with_grad = []
             grads = []
-            exp_avgs = []
+            exp_avgs = [] # momentum buffers
 
             # this is from optim.sgd._init_group
             for p in group['params']:
                 if p.grad is not None:
                     params_with_grad.append(p)
                     grads.append(p.grad)
+                    state = self.state[p]
+                    if 'exp_avg' not in state:
+                        state['exp_avg'] = torch.zeros_like(p)
+                    exp_avgs.append(state['exp_avg'])
 
             sgd(params=params_with_grad,
                 grads=grads,
+                exp_avgs=exp_avgs,
                 lr=group['lr'],
+                momentum=group['momentum'],
                 block_size=group['block_size'],
                 hessian=group['hessian']
                 )
 
+            for p, exp_avg in zip(params_with_grad, exp_avgs):
+                self.state[p]['exp_avg'] = exp_avg
+
 
 def sgd(params: List[Tensor],
         grads: List[Tensor],
+        exp_avgs: list[Tensor],
         *,
         lr: float,
+        momentum: float,
         block_size: int,
         hessian,
         ):
 
     for param_idx, param in enumerate(params):
         grad = grads[param_idx]
+        exp_avg = exp_avgs[param_idx]
+
+        if momentum > 0:
+            # m_t = Bm_{t-1} + (1-B)g_t
+            exp_avg.mul_(momentum).add_(grad, alpha=1 - momentum)
+            grad = exp_avg
 
         if param.ndim == 1:
             param.add_(grad, alpha=-lr)

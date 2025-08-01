@@ -135,9 +135,6 @@ class MLP_module(LightningModule):
                 params=self.parameters(),
                 lr=self.cfg_optimizer['lr'],
                 momentum=self.cfg_optimizer['momentum'],
-                dampening=self.cfg_optimizer['dampening'],
-                weight_decay=self.cfg_optimizer['weight_decay'],
-                nesterov=self.cfg_optimizer['nesterov'],
                 block_size=self.cfg_optimizer['block_size'],
                 alpha=self.cfg_optimizer['alpha'],
             )
