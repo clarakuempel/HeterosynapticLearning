@@ -4,18 +4,18 @@ from textwrap import dedent
 
 # --- Config ---
 SWEEP_CONFIG = "grid"
-PROJECT = f"test-hydra-sweeps-{SWEEP_CONFIG}"
+PROJECT = f"test-gpt-{SWEEP_CONFIG}"
 
 # Optimization parameter grids
-corruption_types = ["identity", "full_dense", "block_diagonal"]
+lr_schdl = ["cosine", "steplr", "None"]
 optimizers = ["md"]
 
 # --- Launch Loop ---
-for corruption in corruption_types:
+for sch in lr_schdl:
     for opt in optimizers:
-        study_name = f"study_{corruption}_{opt}"
-        group = f"{corruption}_{opt}"
-        name = f"{corruption}_{opt}"
+        study_name = f"study_{sch}_{opt}"
+        group = f"{sch}_{opt}"
+        name = f"{sch}_{opt}"
 
         print(f"\nLaunching local sweep: {name}")
         
@@ -29,8 +29,8 @@ for corruption in corruption_types:
 
         cmd = [
             "python", "src/train.py", "-m",
-            f"corruption.corruption_type={corruption}",
             f"optimizer.update_alg={opt}",
+            f"optimizer.lr_scheduler={sch}",
             f"hydra.sweeper.study_name={study_name}",
             f"logger.group={group}",
             f"hparams_search={SWEEP_CONFIG}",
@@ -39,5 +39,3 @@ for corruption in corruption_types:
 
         print("Running command:", " ".join(cmd))
         subprocess.run(cmd)
-        break
-    break
