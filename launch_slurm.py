@@ -19,7 +19,7 @@ grid = {
         "optimizer.block_size": [2, 4, 8], # reduced
         "optimizer.alpha": [0.25, 0.5, 0.75, 0.9, 0.99], # reduced
         "optimizer.momentum": [0.0, 0.9], # reduced
-        "optmizer.lr_scheduler": ["cosine", "steplr", "None"]
+        "optimizer.lr_scheduler": ["cosine", "steplr", "None"]
     },
 }
     
