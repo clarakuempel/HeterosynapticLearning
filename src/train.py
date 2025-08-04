@@ -34,7 +34,7 @@ def train(cfg : DictConfig) -> Optional[float]:
     model: LightningModule = hydra.utils.instantiate(cfg.model)
 
     print(f"Instantiating trainer ...")
-    lr_monitor = LearningRateMonitor(logging_interval='step')
+    lr_monitor = LearningRateMonitor(logging_interval='epoch')
     trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger, callbacks=[lr_monitor])
 
     trainer.fit(model, datamodule)

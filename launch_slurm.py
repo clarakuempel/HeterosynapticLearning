@@ -11,8 +11,7 @@ data = False # add the data param?
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
-        # "corruption.corruption_type": ["identity", "block_diagonal", "full_dense"],
-        "optimizer.lr": [0.001, 0.01, 0.05, 0.1, 0.5, 1.0],
+        "optimizer.lr": [0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0],
     },
     "md": {
         "optimizer.update_alg": ['md'],
