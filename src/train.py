@@ -10,6 +10,7 @@ from typing import Optional
 from utils.log_config import prepare_config
 import wandb
 from lightning.pytorch.loggers.wandb import WandbLogger
+from lightning.pytorch.callbacks import LearningRateMonitor
 
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 
@@ -33,7 +34,8 @@ def train(cfg : DictConfig) -> Optional[float]:
     model: LightningModule = hydra.utils.instantiate(cfg.model)
 
     print(f"Instantiating trainer ...")
-    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger)
+    lr_monitor = LearningRateMonitor(logging_interval='step')
+    trainer: Trainer = hydra.utils.instantiate(cfg.trainer, logger=logger, callbacks=[lr_monitor])
 
     trainer.fit(model, datamodule)
 
