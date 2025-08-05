@@ -3,7 +3,7 @@ defaults:
   - override /hydra/sweeper: optuna
   - override /hydra/sweeper/sampler: tpe
 
-optimized_metric: "val/val_acc_best"
+optimized_metric: "test/acc"
 
 hydra:
   mode: MULTIRUN
@@ -19,11 +19,7 @@ hydra:
       seed: 123
 
     params:
-      optimizer.lr: choice(0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0) # 8
-      optimizer.weight_decay: choice(0.0001, 0.001, 0.01, 0.1, 1) # 5
-      optimizer.block_size: choice(4) # 3
-      # optimizer.alpha: choice(0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99) # 8
-      data.batch_size: choice(64, 128, 256) # 3 
-      model.net.hidden_size1: choice(250, 500) # 2
-      model.net.hidden_size2: choice(250, 500) # 2
-      model.net.hidden_size3: choice(250, 500) # 2
+      optimizer.lr: range(0.01, 1.0) # range from 0.01 to 1
+      optimizer.momentum: range(0.0, 0.99)
+      optimizer.alpha: range(0.01, 0.99)
+      data.batch_size: choice(32, 64, 128, 256) # 3 

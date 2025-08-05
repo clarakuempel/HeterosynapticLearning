@@ -4,21 +4,28 @@ from itertools import product
 import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
-SWEEP_CONFIG = "grid"
+SWEEP_CONFIG = "optuna"
 PROJECT = f"sweep-gpt-lr_schdl-{SWEEP_CONFIG}"
 data = False # add the data param?
 
-# Parameters that represent each unique optimisation space
 grid = {
     "default": {
-        "optimizer.lr": [0.001, 0.01, 0.05, 0.1, 0.5, 1.0, 2.0],
-    },
-    "md": {
         "optimizer.update_alg": ['md'],
-        "optimizer.block_size": [2, 4, 8], # reduced
-        "optimizer.alpha": [0.25, 0.5, 0.75, 0.9, 0.99], # reduced
-        "optimizer.momentum": [0.0, 0.9, 0.95, 0.99], # reduced
-        "optimizer.lr_scheduler": ["cosine", "steplr", "None"]
+        "optimizer.block_size": [2, 4, 8],
+        # to test only run one epoch
+        "trainer.min_epochs": 1, # using optuna so this way we make it faster
+        "trainer.max_epochs": 1, # using optuna so this way we make it faster
+    },
+    "cosine": {
+        "optimizer.lr_scheduler": ["cosine"]
+    },
+    "steplr": {
+        "optimizer.lr_scheduler": ["steplr"],
+        "optimizer.step_size": ["choice(5, 15, 30)"],
+        "optimizer.gamma": ["range(0.01, 0.1)"],
+    },
+    "none": {
+        "optimizer.lr_scheduler": ["None"]
     },
 }
     
