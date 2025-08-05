@@ -5,7 +5,7 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "optuna"
-PROJECT = f"test-gpt-{SWEEP_CONFIG}"
+PROJECT = f"sweep-gpt-2048-mdm-lrschdl-{SWEEP_CONFIG}"
 data = False # add the data param?
 
 grid = {
