@@ -13,7 +13,10 @@ grid = {
         "optimizer.update_alg": ['md'],
         "optimizer.block_size": [2, 4, 8],
         # to test only run one epoch
-        "trainer.max_epochs": [15], # each trial is 20
+        # NOTE: These initial optuna searches do just the initialization step.
+        # in theory once we optimize the initialization we could do longer runs
+        # and use a early stopping method for faster iterations and search.
+        "trainer.max_epochs": [20], # each trial is 20
         "seed": [1337]
     },
     "cosine": {
