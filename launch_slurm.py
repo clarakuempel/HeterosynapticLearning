@@ -5,7 +5,7 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "optuna"
-PROJECT = f"sweep-gpt-lr_schdl-{SWEEP_CONFIG}"
+PROJECT = f"test-gpt-{SWEEP_CONFIG}"
 data = False # add the data param?
 
 grid = {
@@ -13,16 +13,15 @@ grid = {
         "optimizer.update_alg": ['md'],
         "optimizer.block_size": [2, 4, 8],
         # to test only run one epoch
-        "trainer.min_epochs": 1, # using optuna so this way we make it faster
-        "trainer.max_epochs": 1, # using optuna so this way we make it faster
+        "trainer.max_epochs": [15], # each trial is 20
+        "seed": [1337]
     },
     "cosine": {
         "optimizer.lr_scheduler": ["cosine"]
     },
     "steplr": {
         "optimizer.lr_scheduler": ["steplr"],
-        "optimizer.step_size": ["choice(5, 15, 30)"],
-        "optimizer.gamma": ["range(0.01, 0.1)"],
+        "+hparams_search/params": ["steplr"], # Becuase we use optuna now we do this
     },
     "none": {
         "optimizer.lr_scheduler": ["None"]
@@ -36,8 +35,8 @@ def launch_job(**hp):
 
     args == hyper params
     """
-    name = "_".join([str(hp[k]) for k in sorted(hp)])
-    study_name = f"study_{name}"
+    name = "_".join([str(hp[k]) for k in sorted(hp)]).replace(' ', '')
+    study_name = f"study_{name.replace(' ', '')}"
     group = name
 
     data_dir = "$TMP_SHARED"
@@ -71,12 +70,13 @@ def launch_job(**hp):
 
     cmd = [
         "python", f"{REPO_DIR}/src/train.py", "-m", 
-        f"hydra.sweeper.study_name={study_name}",
+        f"hydra.sweeper.study_name='{study_name}'",
         f"hparams_search={SWEEP_CONFIG}",
-        f"logger.group={group}",
+        f"logger.group='{group}'",
         f"save_dir=$LOGGING",
         f"logger.project={PROJECT}",
-        f"data.data_dir={data_dir}/data" if data else "",
+        f"seed=1337",
+        *([f"data.data_dir={data_dir}/data"] if data else []),
     ]
 
     # the keu is the name of the hyperparameter, the value is the value to set it to

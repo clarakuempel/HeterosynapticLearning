@@ -1,0 +1,3 @@
+# @package hydra.sweeper.params
+optimizer.step_size: choice(5, 15, 30)
+optimizer.gamma: range(0.01, 0.1)
