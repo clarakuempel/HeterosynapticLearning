@@ -46,7 +46,7 @@ def launch_job(**hp):
         #SBATCH --job-name={name}
         #SBATCH --output=slurm-logs/{PROJECT}/{name}_%j.out
         #SBATCH --error=slurm-logs/{PROJECT}/{name}_%j.err
-        #SBATCH --time=9:00:00
+        #SBATCH --time=20:00:00
         #SBATCH --partition=gpu
         #SBATCH --gres=gpu:1
         #SBATCH --mem=16G
