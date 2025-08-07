@@ -9,5 +9,6 @@ net:
     n_embd: 64
     dropout: 0.0
     bias: True
+    causal: True
 
 optimizer: ${optimizer}
