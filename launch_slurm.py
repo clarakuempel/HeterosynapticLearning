@@ -8,6 +8,21 @@ SWEEP_CONFIG = "optuna"
 PROJECT = f"sweep-gpt-2048-mdm-lrschdl-{SWEEP_CONFIG}"
 data = False # add the data param?
 
+# Job ids:
+# Submitted batch job 1528518
+# Submitted batch job 1528519
+# Submitted batch job 1528520
+# Submitted batch job 1528521
+# Submitted batch job 1528522
+# Submitted batch job 1528523
+# Submitted batch job 1528524
+# Submitted batch job 1528525
+# Submitted batch job 1528526
+
+# 1. Remove the causality mask
+# 2. remove the delimiters
+# 3. grid over lr for md and gd
+
 grid = {
     "default": {
         "optimizer.update_alg": ['md'],
