@@ -180,7 +180,7 @@ class GPT(nn.Module):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
     # NOTE: edited so it does not take any targets
-    def forward(self, idx, targets=None):
+    def forward(self, idx, targets=None, num_last_tokens=0):
         assert targets == None, 'This targets should not be set'
         device = idx.device
         b, t = idx.size()
@@ -195,8 +195,11 @@ class GPT(nn.Module):
             x = block(x)
         x = self.transformer.ln_f(x)
 
-        logits = self.lm_head(x) # (b, t, vocab_size)
-        return logits
+        if num_last_tokens > 0:
+            x = x[:, -num_last_tokens:, :]
+            
+        logits = self.lm_head(x) # (b, t = num_last_tokens, vocab_size)
+        return logits # B, 10, vocab_size
 
     def crop_block_size(self, block_size):
         # model surgery to decrease the block size if necessary

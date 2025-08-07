@@ -346,6 +346,9 @@ if __name__ == "__main__":
 
     x, y = batch
 
+    print("normal batch")
+    print(x, y)
+
     x_size = x.size(-1)
     l_memorize = y.size(-1)
     batch_size = x.size(0)
