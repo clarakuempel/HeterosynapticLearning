@@ -17,7 +17,7 @@ grid = {
         "data.l_memorize": [10],
         "model.net.config.block_size": [lambda conf: conf['data.l_noise'] + 2 * conf['data.l_memorize']],
         "optimizer.alpha": [0.99],
-        "data.l_noise": [100, 200, 500],
+        "data.l_noise": [125, 150, 175],
     },
     "md": {
         "optimizer.update_alg": ['md'],
