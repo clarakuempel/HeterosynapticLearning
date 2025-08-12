@@ -13,14 +13,14 @@ slurm = False  # whether to launch the jobs on SLURM or not
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
-        "optimizer.lr": [0.05],
         "data.l_memorize": [5, 10, 15],
         "model.net.config.block_size": [lambda conf: conf['data.l_noise'] + 2 * conf['data.l_memorize']],
         "optimizer.alpha": [0.99],
         "data.l_noise": [100],
     },
-    "md": {
-        "optimizer.update_alg": ['md'],
+    "gd": {
+        "optimizer.update_alg": ['gd'],
+        "optimizer.lr": [0.01],
     }
 }
     
