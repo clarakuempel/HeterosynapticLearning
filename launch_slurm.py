@@ -13,7 +13,7 @@ slurm = False  # whether to launch the jobs on SLURM or not
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
-        "optimizer.lr": [0.001],
+        "optimizer.lr": [0.01],
         "data.l_noise": [100, 500, 1000],
         "data.l_memorize": [16],
         "model.net.config.block_size": [lambda conf: conf['data.l_noise'] + 2 * conf['data.l_memorize']]
@@ -101,7 +101,6 @@ def launch_job(**hp):
     else:
         # If not using SLURM, just run the command directly
         print("Running command directly (not on SLURM):", " ".join(cmd))
-        print(cmd)
         subprocess.run(cmd)
 
 def print_grid_stats(grid):
