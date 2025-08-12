@@ -5,17 +5,22 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"sweep-gpt2-2048-selcopy-{SWEEP_CONFIG}"
+PROJECT = f"test-gpt2-{SWEEP_CONFIG}"
 data = False # add the data param?
+slurm = False  # whether to launch the jobs on SLURM or not
 
 
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
-        "optimizer.lr": [0.01],
+        "optimizer.lr": [0.001],
+        "data.l_noise": [100, 500, 1000],
+        "data.l_memorize": [16],
+        "model.net.config.block_size": [lambda conf: conf['data.l_noise'] + 2 * conf['data.l_memorize']]
     },
-    "adamW": {
-        "optimizer.update_alg": ['adamW'],
+    "md": {
+        "optimizer.update_alg": ['md'],
+        "optimizer.alpha": [0.95],
     },
 }
     
@@ -26,6 +31,11 @@ def launch_job(**hp):
 
     args == hyper params
     """
+    # if any value is a lambda function, evaluate it with the current hp
+    for key, value in hp.items():
+        if callable(value):
+            hp[key] = value(hp)
+
     name = "_".join([str(hp[k]) for k in sorted(hp)])
     study_name = f"study_{name}"
     group = name
@@ -64,10 +74,13 @@ def launch_job(**hp):
         f"hydra.sweeper.study_name={study_name}",
         f"hparams_search={SWEEP_CONFIG}",
         f"logger.group={group}",
-        f"save_dir=$LOGGING",
+        f"save_dir=$LOGGING" if slurm else f"save_dir={REPO_DIR}/logs/{PROJECT}/{study_name}",
         f"logger.project={PROJECT}",
-        f"data.data_dir={data_dir}/data" if data else "",
     ]
+
+    if data:
+        cmd.append(f"data.data_dir={data_dir}/data")
+
 
     # the keu is the name of the hyperparameter, the value is the value to set it to
     for key, value in hp.items():
@@ -79,11 +92,17 @@ def launch_job(**hp):
     # Write the script to a temp file (can be named uniquely)
     script_filename = f"tmp.sh"
 
-    with open(script_filename, "w") as f:
-        f.write(batch_script)
+    if slurm:
+        with open(script_filename, "w") as f:
+            f.write(batch_script)
 
-    # Launch the job using sbatch
-    subprocess.run(["sbatch", script_filename])
+        # Launch the job using sbatch
+        subprocess.run(["sbatch", script_filename])
+    else:
+        # If not using SLURM, just run the command directly
+        print("Running command directly (not on SLURM):", " ".join(cmd))
+        print(cmd)
+        subprocess.run(cmd)
 
 def print_grid_stats(grid):
     default = grid.get("default", {})
