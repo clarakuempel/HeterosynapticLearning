@@ -5,7 +5,7 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"test-gpt2-{SWEEP_CONFIG}"
+PROJECT = f"task-gpt2-{SWEEP_CONFIG}"
 data = False # add the data param?
 slurm = False  # whether to launch the jobs on SLURM or not
 
@@ -13,14 +13,12 @@ slurm = False  # whether to launch the jobs on SLURM or not
 # Parameters that represent each unique optimisation space
 grid = {
     "default": {
-        "optimizer.lr": [0.01],
-        "data.l_noise": [100, 500, 1000],
-        "data.l_memorize": [16],
+        "optimizer.lr": [0.05],
+        "data.l_memorize": [10],
         "model.net.config.block_size": [lambda conf: conf['data.l_noise'] + 2 * conf['data.l_memorize']]
-    },
-    "md": {
         "optimizer.update_alg": ['md'],
-        "optimizer.alpha": [0.95],
+        "optimizer.alpha": [0.99],
+        "data.l_noise": [100, 200, 500],
     },
 }
     
