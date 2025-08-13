@@ -5,9 +5,9 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"task-gpt2-{SWEEP_CONFIG}"
+PROJECT = f"sweep-task-gpt2-{SWEEP_CONFIG}"
 data = False # add the data param?
-slurm = False  # whether to launch the jobs on SLURM or not
+slurm = True  # whether to launch the jobs on SLURM or not
 
 
 # Parameters that represent each unique optimisation space
