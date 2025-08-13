@@ -5,7 +5,7 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"sweep-task-gpt2-{SWEEP_CONFIG}"
+PROJECT = f"test-task-gpt2-{SWEEP_CONFIG}"
 data = False # add the data param?
 slurm = True  # whether to launch the jobs on SLURM or not
 
@@ -14,16 +14,12 @@ slurm = True  # whether to launch the jobs on SLURM or not
 # You can also make an item a lambda function to evaluate it dynamically where the argument is the hyperparameter dictionary
 grid = {
     "default": {
-        "optimizer.lr": [0.01, 0.1, 0.5, 1.0],
-        "optimizer.momentum": [0.0, 0.9, 0.95, 0.99],
-    },
-    "gd": {
-        "optimizer.update_alg": ['gd'],
-        "optimizer.weight_decay": [0.0, 0.0001, 0.001, 0.01],
+        "optimizer.lr": [0.5],
+        "optimizer.momentum": [0.0],
     },
     "md": {
         "optimizer.update_alg": ['md'],
-        "optimizer.alpha": [0.01, 0.25, 0.5, 0.75, 0.99],
+        "optimizer.alpha": [0.99],
     },
 }
 
