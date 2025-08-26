@@ -5,7 +5,7 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"sweep-task-gpt2-{SWEEP_CONFIG}"
+PROJECT = f"corrup-alpha-{SWEEP_CONFIG}"
 data = True # add the data param?
 slurm = True  # whether to launch the jobs on SLURM or not
 
