@@ -50,9 +50,20 @@ class GPT_module(LightningModule):
         self, batch: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x, y = batch
-        # x = noise mem deli # B, T
-        # y = target # B, T
-        logits = self.net(x, num_last_tokens=y.size(-1))
+        
+        # Auto-detect task type based on sequence lengths and vocab size
+        # Language modeling: x and y have same length, large vocab (>1000)
+        # Selective copying: y is much shorter than x, small vocab (<100)
+        is_language_modeling = (x.size(-1) == y.size(-1)) and (self.net.config.vocab_size > 1000)
+        
+        if is_language_modeling:
+            # Language modeling: predict next token at each position
+            # x: [B, T], y: [B, T] where y[i] = x[i+1]
+            logits = self.net(x, num_last_tokens=0)  # Get logits for all positions
+        else:
+            # Selective copying: predict only the target sequence
+            # x = noise + mem + delimiters, y = target sequence only
+            logits = self.net(x, num_last_tokens=y.size(-1))
 
         loss = self.criterion(logits.view(-1, logits.size(-1)), y.view(-1))
 
