@@ -1,0 +1,5 @@
+# @package _global_
+defaults:
+  - /data: penn_treebank
+
+causal: true  # Language modeling requires causal attention

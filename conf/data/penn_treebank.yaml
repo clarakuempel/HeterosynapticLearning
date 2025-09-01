@@ -8,4 +8,3 @@ seed: ${seed}
 # The actual vocab size will be determined dynamically by the datamodule
 # This is a reasonable estimate for Penn Treebank
 n_tokens: 10000  # Penn Treebank typically has ~10k vocab
-causal: true  # Language modeling requires causal attention

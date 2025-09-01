@@ -9,6 +9,6 @@ net:
     n_embd: 128  # Larger embedding
     dropout: 0.0  # Disable for testing
     bias: True
-    causal: ${data.causal}
+    causal: ${causal}
 
 optimizer: ${optimizer}

@@ -13,8 +13,6 @@ val_size: 1000
 test_size: 1000
 seed: ${seed}
 
-causal: false  # Selective copying doesn't need causal attention
-
 # dataset properties
 # sequence_length: Total input sequence length
 # input_size: Input vocabulary size

@@ -1,0 +1,5 @@
+# @package _global_
+defaults:
+  - /data: selective_copying
+
+causal: false  # Selective copying doesn't need causal attention

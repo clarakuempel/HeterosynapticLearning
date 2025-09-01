@@ -1,7 +1,7 @@
 
 defaults:
   - _self_ # to avoid a warning
-  - data: selective_copying 
+  - task: selective_copying  # This will set data and causal
   - optimizer: default
   - model: nanoGPT
   - logger: wandb

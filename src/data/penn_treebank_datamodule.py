@@ -227,7 +227,7 @@ class PennTreebankDataModule(L.LightningDataModule):
 if __name__ == "__main__":
     # Test the datamodule
     dm = PennTreebankDataModule(
-        data_dir="../../.data/penn-treebank",
+        data_dir="../../data/penn-treebank",
         seq_len=10,  # Short sequence for testing
         batch_size=4
     )

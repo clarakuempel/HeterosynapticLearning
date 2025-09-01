@@ -17,7 +17,7 @@ print(setup_msg)
 
 cmd = [
     "python", "src/train.py",
-    "data=penn_treebank",
+    "task=penn_treebank",
     "model=nanoGPT",
     "optimizer.update_alg=gd",  # Test GD with stronger coupling
     "optimizer.alpha=0.5",  # Stronger heterosynaptic coupling
