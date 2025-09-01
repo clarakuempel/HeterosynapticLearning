@@ -10,6 +10,7 @@ accelerator: auto
 devices: auto
 check_val_every_n_epoch: 1
 deterministic: False
+enable_checkpointing: false  # Disable automatic checkpointing
 
 callbacks:
   - ${trainer.callbacks}

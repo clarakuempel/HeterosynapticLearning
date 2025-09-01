@@ -1,0 +1,10 @@
+_target_: src.data.penn_treebank_datamodule.PennTreebankDataModule
+data_dir: "./data"
+seq_len: 35  # Standard Penn Treebank sequence length
+batch_size: 32
+num_workers: 4
+seed: ${seed}
+
+# The actual vocab size will be determined dynamically by the datamodule
+# This is a reasonable estimate for Penn Treebank
+n_tokens: 10000  # Penn Treebank typically has ~10k vocab
