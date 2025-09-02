@@ -5,7 +5,10 @@ import lightning as L
 import torch
 from torch.utils.data import DataLoader, Dataset
 import torch.nn.functional as F
-from torchtext import data, datasets
+from torchtext.datasets import PennTreebank
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
+
 
 
 class PennTreebankDataset(Dataset):
@@ -41,7 +44,6 @@ class PennTreebankDataset(Dataset):
             
         return x, y
 
-
 class PennTreebankDataModule(L.LightningDataModule):
     """
     Lightning DataModule for Penn Treebank language modeling task.
@@ -55,45 +57,35 @@ class PennTreebankDataModule(L.LightningDataModule):
                  seed: int = 42,
                  n_tokens: int = 10000,
                  debug_mode: bool = False):
-        """
-        Args:
-            data_dir: Directory to store/load the data (not used, torchtext handles caching)
-            seq_len: Sequence length for language modeling (BPTT length)
-            batch_size: Batch size for dataloaders
-            num_workers: Number of workers for dataloaders
-            seed: Random seed for reproducibility
-            n_tokens: Estimated vocabulary size (will be overridden by actual vocab size)
-        """
         super().__init__()
         self.data_dir = data_dir
         self.seq_len = seq_len
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.seed = seed
-        self.n_tokens = n_tokens  # Will be updated when vocab is built
-        
+        self.n_tokens = n_tokens
+
         # Vocabulary and datasets
         self.word_to_idx: Dict[str, int] = {}
-        self.idx_to_word: Dict[int, str] = {}
+        self.idx_to_word: List[str] = []
         self.vocab_size: int = 0
-        
+
         self.train_dataset: Optional[Dataset] = None
         self.val_dataset: Optional[Dataset] = None
         self.test_dataset: Optional[Dataset] = None
         self.predict_dataset: Optional[Dataset] = None
-        
+
+        self.tokenizer = get_tokenizer("basic_english")
+
         self.save_hyperparameters()
         
     def prepare_data(self):
-        """Download Penn Treebank data using torchtext."""
-        # Create text field for processing
-        text_field = data.Field(lower=True)
-        
-        # Load Penn Treebank dataset - this will download if not present
-        train_data, valid_data, test_data = datasets.PennTreebank.splits(text_field)
-        
-        # Build vocabulary from training data
-        text_field.build_vocab(train_data)
+        # This will download the data if not already present
+        PennTreebank(root=self.data_dir, split=("train", "valid", "test"))
+
+    def _yield_tokens(self, data_iter):
+        for line in data_iter:
+            yield self.tokenizer(line)
     
     def _build_vocab_from_iter(self, data_iter):
         """Build vocabulary from data iterator."""
@@ -134,36 +126,46 @@ class PennTreebankDataModule(L.LightningDataModule):
         return tokens
     
     def setup(self, stage: str):
-        """Setup datasets for different stages."""
-        # Create text field for processing
-        text_field = data.Field(lower=True)
-        
-        # Load Penn Treebank dataset splits
-        train_data, valid_data, test_data = datasets.PennTreebank.splits(text_field)
-        
-        # Build vocabulary if not already done
+        # Load dataset splits
+        train_iter, val_iter, test_iter = PennTreebank(
+            root=self.data_dir, split=("train", "valid", "test")
+        )
+
+        # Build vocab if not already built
         if self.vocab_size == 0:
-            text_field.build_vocab(train_data)
-            self._build_vocab_from_field(text_field)
-        
+            vocab = build_vocab_from_iterator(
+                self._yield_tokens(train_iter),
+                specials=["<unk>", "<pad>"]
+            )
+            vocab.set_default_index(vocab["<unk>"])
+            self.word_to_idx = vocab.get_stoi()
+            self.idx_to_word = vocab.get_itos()
+            self.vocab_size = len(vocab)
+            self.n_tokens = self.vocab_size
+
+            print(f"Built vocabulary with {self.vocab_size} tokens")
+
+        # reload iterators (they are exhausted after use)
+        train_iter, val_iter, test_iter = PennTreebank(
+            root=self.data_dir, split=("train", "valid", "test")
+        )
+
+        def encode(data_iter):
+            tokens = []
+            for line in data_iter:
+                for word in self.tokenizer(line):
+                    tokens.append(self.word_to_idx.get(word, self.word_to_idx["<unk>"]))
+            return tokens
+
         if stage == "fit":
-            # Training data
-            train_tokens = self._tokenize_dataset(train_data)
-            self.train_dataset = PennTreebankDataset(train_tokens, self.seq_len)
-            
-            # Validation data
-            val_tokens = self._tokenize_dataset(valid_data)
-            self.val_dataset = PennTreebankDataset(val_tokens, self.seq_len)
-            
+            self.train_dataset = PennTreebankDataset(encode(train_iter), self.seq_len)
+            self.val_dataset = PennTreebankDataset(encode(val_iter), self.seq_len)
+
         if stage in ["test", "validate"]:
-            # Test data
-            test_tokens = self._tokenize_dataset(test_data)
-            self.test_dataset = PennTreebankDataset(test_tokens, self.seq_len)
-            
+            self.test_dataset = PennTreebankDataset(encode(test_iter), self.seq_len)
+
         if stage == "predict":
-            # Use test data for prediction
-            test_tokens = self._tokenize_dataset(test_data)
-            self.predict_dataset = PennTreebankDataset(test_tokens, self.seq_len)
+            self.predict_dataset = PennTreebankDataset(encode(test_iter), self.seq_len)
     
     def train_dataloader(self):
         return DataLoader(
