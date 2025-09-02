@@ -14,7 +14,6 @@ slurm = True  # whether to launch the jobs on SLURM or not
 # You can also make an item a lambda function to evaluate it dynamically where the argument is the hyperparameter dictionary
 grid = {
     "default": {
-        "trainer.max_epochs": [10],
         "optimizer.lr": [0.01, 0.1, 0.5, 1.0],
         "optimizer.momentum": [0.0, 0.9, 0.95, 0.99],
     },
