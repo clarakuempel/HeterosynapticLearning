@@ -39,6 +39,16 @@ cd HeterosynapticLearning
 pip install -r requirements.txt
 ```
 
+or in conda
+
+```bash
+conda create -p $HOME/HL-env python=3.11 -y
+conda activate $HOME/HL-env
+conda install pytorch==2.2.1 -c pytorch -c nvidia
+pip install -r requirements.txt
+pip install numpy==1.26.4
+```
+
 ## Usage
 
 ### Basic Training
