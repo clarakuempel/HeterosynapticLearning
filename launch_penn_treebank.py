@@ -3,7 +3,7 @@ import os
 from textwrap import dedent
 
 # --- Config ---
-PROJECT = "penn-treebank-test"
+PROJECT = "penn-treebank-bug-test"
 
 print(f"\nLaunching Penn Treebank training")
 
@@ -22,9 +22,25 @@ cmd = [
     "optimizer.update_alg=gd",  # Test GD with stronger coupling
     "optimizer.alpha=0.5",  # Stronger heterosynaptic coupling
     "optimizer.lr=0.03",  # Higher learning rate to amplify differences
-    "trainer.max_epochs=2",  # Two epochs
+    "trainer.max_epochs=5",  # Two epochs
     f"logger.project={PROJECT}",
     "logger.group=debug_gd_lr03",
+    "seed=43"
+]
+
+print("Running command:", " ".join(cmd))
+subprocess.run(cmd)
+
+cmd = [
+    "python", "src/train.py",
+    "task=penn_treebank",
+    "model=nanoGPT",
+    "optimizer.update_alg=md",  # Test GD with stronger coupling
+    "optimizer.alpha=0.5",  # Stronger heterosynaptic coupling
+    "optimizer.lr=0.03",  # Higher learning rate to amplify differences
+    "trainer.max_epochs=5",  # Two epochs
+    f"logger.project={PROJECT}",
+    "logger.group=debug_md_lr03",
     "seed=43"
 ]
 
