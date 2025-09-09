@@ -5,7 +5,7 @@ from typing import Tuple
 from lightning import LightningModule
 from src.optimizer.md import HP_SGD
 
-from torchmetrics import MaxMetric, MeanMetric
+from torchmetrics import MaxMetric, MeanMetric, MinMetric
 from torchmetrics.classification.accuracy import Accuracy
 
 from src.utils import apply_nm_pruning
@@ -43,7 +43,7 @@ class GPT_module(LightningModule):
 
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
-        self.val_ppl_best = MaxMetric()
+        self.val_ppl_best = MinMetric()
         self.save_hyperparameters(ignore=['net'])        
 
     def on_train_start(self) -> None:
