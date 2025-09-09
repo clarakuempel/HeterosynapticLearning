@@ -5,7 +5,7 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"small-penn-treebank-{SWEEP_CONFIG}"
+PROJECT = f"penn-treebank-{SWEEP_CONFIG}"
 data = True # add the data param?
 slurm = True  # whether to launch the jobs on SLURM or not
 
@@ -16,6 +16,7 @@ grid = {
     "default": {
         "optimizer.lr": [0.01, 0.1, 0.5, 1.0],
         "optimizer.momentum": [0.0, 0.9, 0.95, 0.99],
+        "model.net.config.dropout": [0.0, 0.1, 0.2, 0.5]
     },
     "md": {
         "optimizer.update_alg": ['md'],
@@ -23,7 +24,7 @@ grid = {
     },
     "gd": {
         "optimizer.update_alg": ['gd'],
-        "optimizer.weight_decay": [0.01, 0.0],
+        "optimizer.weight_decay": [0.01, 0.001, 0.0],
     },
 }
 
