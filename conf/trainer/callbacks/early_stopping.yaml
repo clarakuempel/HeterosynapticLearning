@@ -1,6 +1,6 @@
 - _target_: lightning.pytorch.callbacks.EarlyStopping
   monitor: val/ppl_best
   patience: 12
-  min_delta: 0.2
+  min_delta: 1
   mode: min
   verbose: True
