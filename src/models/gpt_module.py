@@ -25,6 +25,13 @@ class GPT_module(LightningModule):
         
         # metric objects for calculating and averaging accuracy across batches
         vocab_size = net.config.vocab_size
+
+        # PPL
+        self.train_ppl = MeanMetric()
+        self.val_ppl = MeanMetric()
+        self.test_ppl = MeanMetric()
+
+        # Accuracy
         self.train_acc = Accuracy(task="multiclass", num_classes=vocab_size)
         self.val_acc = Accuracy(task="multiclass", num_classes=vocab_size)
         self.test_acc = Accuracy(task="multiclass", num_classes=vocab_size)
@@ -36,6 +43,7 @@ class GPT_module(LightningModule):
 
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
+        self.val_ppl_best = MaxMetric()
         self.save_hyperparameters(ignore=['net'])        
 
     def on_train_start(self) -> None:
@@ -81,11 +89,14 @@ class GPT_module(LightningModule):
         """
         loss, preds, targets = self.model_step(batch)
 
+        ppl = torch.exp(loss.detach())
         # update and log metrics
         self.train_loss(loss)
         self.train_acc(preds, targets)
+        self.train_ppl(ppl)
         self.log("train/loss", self.train_loss, on_step=True, on_epoch=True, prog_bar=True)
         self.log("train/acc", self.train_acc, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("train/ppl", self.train_ppl, on_step=True, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
         return loss
@@ -96,11 +107,14 @@ class GPT_module(LightningModule):
         """Perform a single validation step on a batch of data from the validation set."""
         loss, preds, targets = self.model_step(batch)
 
+        ppl = torch.exp(loss.detach())
         # update and log metrics
         self.val_loss(loss)
         self.val_acc(preds, targets)
+        self.val_ppl(ppl)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log("val/acc", self.val_acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/ppl", self.val_ppl, on_step=False, on_epoch=True, prog_bar=True)
 
         return loss
 
@@ -110,19 +124,25 @@ class GPT_module(LightningModule):
         """Perform a single test step on a batch of data from the test set."""
         loss, preds, targets = self.model_step(batch)
 
+        ppl = torch.exp(loss.detach())
         # update and log metrics
         self.test_loss(loss)
         self.test_acc(preds, targets)
+        self.test_ppl(ppl)
         self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.log("test/acc", self.test_acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("test/ppl", self.test_ppl, on_step=False, on_epoch=True, prog_bar=True)
 
         return loss
 
     def on_validation_epoch_end(self) -> None:
         """Lightning hook that is called when a validation epoch ends."""
-        acc = self.val_acc.compute()  
-        self.val_acc_best(acc)  
+        acc = self.val_acc.compute()
+        ppl = self.val_ppl.compute()
+        self.val_acc_best(acc)
+        self.val_ppl_best(ppl)
         self.log("val/acc_best", self.val_acc_best.compute(), sync_dist=True, prog_bar=True)
+        self.log("val/ppl_best", self.val_ppl_best.compute(), sync_dist=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
         """Lightning hook that is called when a test epoch ends."""
