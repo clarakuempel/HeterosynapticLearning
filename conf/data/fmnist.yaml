@@ -1,0 +1,7 @@
+# Fixed constants of the dataset
+# name: fmnist
+# task: classification
+_target_: src.data.mnist_datamodule.FashionMNISTDataModule
+data_dir: data/
+batch_size: 128 
+num_workers: 4

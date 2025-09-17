@@ -5,26 +5,49 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"penn-treebank-{SWEEP_CONFIG}"
+PROJECT = f"prune-tests-{SWEEP_CONFIG}"
 data = True # add the data param?
-slurm = True  # whether to launch the jobs on SLURM or not
+slurm = False  # whether to launch the jobs on SLURM or not
 
 
 # Parameters that represent each unique optimisation space
 # You can also make an item a lambda function to evaluate it dynamically where the argument is the hyperparameter dictionary
 grid = {
     "default": {
-        "optimizer.lr": [0.01, 0.1, 0.5, 1.0],
-        "optimizer.momentum": [0.0, 0.9, 0.95, 0.99],
-        "model.net.config.dropout": [0.0, 0.1, 0.2, 0.5]
+        "model": ["basic_mlp"],
+        "pruning.enable": ["True"],
     },
-    "md": {
+    "md_mnist": {
+        "task": ["mnist"],
+        "trainer.min_epochs": ["20"],
+        "trainer.max_epochs": ["20"],
         "optimizer.update_alg": ['md'],
-        "optimizer.alpha": [0.01, 0.5, 0.99],
+        "optimizer.lr": ['0.1'],
+        "optimizer.alpha": ['0.5'],
+        "optimizer.block_size": ['4'],
+        
     },
-    "gd": {
+    "gd_mnist": {
+        "task": ["mnist"],
         "optimizer.update_alg": ['gd'],
-        "optimizer.weight_decay": [0.01, 0.001, 0.0],
+        "optimizer.lr": ['0.05'],
+        "optimizer.weight_decay": ['0.0001'],
+    },
+    "md_fmnist": {
+        "task": ["fmnist"],
+        "trainer.min_epochs": ["20"],
+        "trainer.max_epochs": ["20"],
+        "optimizer.update_alg": ['md'],
+        "optimizer.lr": ['0.1'],
+        "optimizer.alpha": ['0.5'],
+        "optimizer.block_size": ['4'],
+        
+    },
+    "gd_fmnist": {
+        "task": ["fmnist"],
+        "optimizer.update_alg": ['gd'],
+        "optimizer.lr": ['0.05'],
+        "optimizer.weight_decay": ['0.0001'],
     },
 }
 
