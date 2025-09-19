@@ -117,5 +117,5 @@ class FashionMNISTDataModule(L.LightningDataModule):
         pass
 
 if __name__ == "__main__":
-    _ = MNISTDataModule()
-    _ = FashionMNISTDataModule()
+    _ = MNISTDataModule().prepare_data()
+    _ = FashionMNISTDataModule().prepare_data()
