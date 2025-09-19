@@ -5,8 +5,8 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"prune-tests-{SWEEP_CONFIG}"
-data = True # add the data param?
+PROJECT = f"prune-tests-selcopy-{SWEEP_CONFIG}"
+data = False # add the data param?
 slurm = False  # whether to launch the jobs on SLURM or not
 
 
@@ -14,40 +14,26 @@ slurm = False  # whether to launch the jobs on SLURM or not
 # You can also make an item a lambda function to evaluate it dynamically where the argument is the hyperparameter dictionary
 grid = {
     "default": {
-        "model": ["basic_mlp"],
+        "model": ["nanoGPT"],
         "pruning.enable": ["True"],
-    },
-    # "md_mnist": {
-        # "task": ["mnist"],
+        "task": ["selective_copying"],
         # "trainer.min_epochs": ["20"],
         # "trainer.max_epochs": ["20"],
-        # "optimizer.update_alg": ['md'],
-        # "optimizer.lr": ['0.1'],
-        # "optimizer.alpha": ['0.5'],
-        # "optimizer.block_size": ['4'],
-        
-    # },
-    # "gd_mnist": {
-        # "task": ["mnist"],
-        # "optimizer.update_alg": ['gd'],
-        # "optimizer.lr": ['0.05'],
-        # "optimizer.weight_decay": ['0.0001'],
-    # },
-    "md_fmnist": {
-        "task": ["fmnist"],
-        "trainer.min_epochs": ["20"],
-        "trainer.max_epochs": ["20"],
-        "optimizer.update_alg": ['md'],
-        "optimizer.lr": ['0.1'],
-        "optimizer.alpha": ['0.5'],
-        "optimizer.block_size": ['4'],
-        
+
+        "trainer.min_epochs": ["1"],
+        "trainer.max_epochs": ["1"],
     },
-    "gd_fmnist": {
-        "task": ["fmnist"],
+    "md": {
+        "optimizer.update_alg": ['md'],
+        "optimizer.alpha": ['0.75'],
+        "optimizer.block_size": ['4'],
+        "optimizer.lr": ['0.5'],
+        "optimizer.momentum": ['0.95'],
+    },
+    "gd": {
         "optimizer.update_alg": ['gd'],
-        "optimizer.lr": ['0.05'],
-        "optimizer.weight_decay": ['0.0001'],
+        "optimizer.lr": ['0.01'],
+        "optimizer.momentum": ['0.95'],
     },
 }
 

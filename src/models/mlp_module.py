@@ -41,7 +41,6 @@ class MLP_module(LightningModule):
         self.save_hyperparameters(ignore=['net', 'optimizer', 'pruning'])        
 
     def prune(self):
-        # TODO: implement the pruning rounds
         apply_nm_pruning(
             self.net,
             self.cfg_pruning['N'],

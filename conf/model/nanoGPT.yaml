@@ -2,13 +2,14 @@ _target_: src.models.gpt_module.GPT_module
 net:
   _target_: src.models.components.nanoGPT.GPT
   config:
-    block_size: 64  # Closer to sequence length
+    block_size: 120
     vocab_size: ${data.n_tokens}
-    n_layer: 4  # A bit deeper
+    n_layer: 2
     n_head: 4
-    n_embd: 128  # Larger embedding
-    dropout: 0.0  # Disable for testing
+    n_embd: 64
+    dropout: 0.0
     bias: True
     causal: ${causal}
 
 optimizer: ${optimizer}
+pruning: ${pruning}
