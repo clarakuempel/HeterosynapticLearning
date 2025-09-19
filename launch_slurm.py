@@ -17,22 +17,22 @@ grid = {
         "model": ["basic_mlp"],
         "pruning.enable": ["True"],
     },
-    "md_mnist": {
-        "task": ["mnist"],
-        "trainer.min_epochs": ["20"],
-        "trainer.max_epochs": ["20"],
-        "optimizer.update_alg": ['md'],
-        "optimizer.lr": ['0.1'],
-        "optimizer.alpha": ['0.5'],
-        "optimizer.block_size": ['4'],
+    # "md_mnist": {
+        # "task": ["mnist"],
+        # "trainer.min_epochs": ["20"],
+        # "trainer.max_epochs": ["20"],
+        # "optimizer.update_alg": ['md'],
+        # "optimizer.lr": ['0.1'],
+        # "optimizer.alpha": ['0.5'],
+        # "optimizer.block_size": ['4'],
         
-    },
-    "gd_mnist": {
-        "task": ["mnist"],
-        "optimizer.update_alg": ['gd'],
-        "optimizer.lr": ['0.05'],
-        "optimizer.weight_decay": ['0.0001'],
-    },
+    # },
+    # "gd_mnist": {
+        # "task": ["mnist"],
+        # "optimizer.update_alg": ['gd'],
+        # "optimizer.lr": ['0.05'],
+        # "optimizer.weight_decay": ['0.0001'],
+    # },
     "md_fmnist": {
         "task": ["fmnist"],
         "trainer.min_epochs": ["20"],
