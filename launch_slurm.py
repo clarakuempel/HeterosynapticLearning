@@ -7,7 +7,7 @@ REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
 PROJECT = f"prune-tests-selcopy-{SWEEP_CONFIG}"
 data = False # add the data param?
-slurm = False  # whether to launch the jobs on SLURM or not
+slurm = True  # whether to launch the jobs on SLURM or not
 
 
 # Parameters that represent each unique optimisation space
@@ -17,11 +17,8 @@ grid = {
         "model": ["nanoGPT"],
         "pruning.enable": ["True"],
         "task": ["selective_copying"],
-        # "trainer.min_epochs": ["20"],
-        # "trainer.max_epochs": ["20"],
-
-        "trainer.min_epochs": ["1"],
-        "trainer.max_epochs": ["1"],
+        "trainer.min_epochs": ["20"],
+        "trainer.max_epochs": ["20"],
     },
     "md": {
         "optimizer.update_alg": ['md'],
