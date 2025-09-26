@@ -5,8 +5,8 @@ import os
 CONDA_ENV_NAME = "HL-env"
 REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
-PROJECT = f"prune-tests-selcopy-{SWEEP_CONFIG}"
-data = False # add the data param?
+PROJECT = f"decouple-alphas-{SWEEP_CONFIG}"
+data = True # add the data param?
 slurm = True  # whether to launch the jobs on SLURM or not
 
 
@@ -14,23 +14,21 @@ slurm = True  # whether to launch the jobs on SLURM or not
 # You can also make an item a lambda function to evaluate it dynamically where the argument is the hyperparameter dictionary
 grid = {
     "default": {
-        "model": ["nanoGPT"],
-        "pruning.enable": ["True"],
-        "task": ["selective_copying"],
+        "model": ["basic_mlp"],
+        "task": ["fmnist"],
+        "optimizer.lr": [0.05, 0.1, 0.5, 1.0],
+        "optimizer.momentum": [0.0, 0.9, 0.99],
+        "corruption.alpha": [0.01, 0.25, 0.5, 0.75, 0.99],
         "trainer.min_epochs": ["20"],
         "trainer.max_epochs": ["20"],
     },
     "md": {
         "optimizer.update_alg": ['md'],
-        "optimizer.alpha": ['0.75'],
+        "optimizer.alpha": [0.01, 0.25, 0.5, 0.75, 0.99],
         "optimizer.block_size": ['4'],
-        "optimizer.lr": ['0.5'],
-        "optimizer.momentum": ['0.95'],
     },
     "gd": {
         "optimizer.update_alg": ['gd'],
-        "optimizer.lr": ['0.01'],
-        "optimizer.momentum": ['0.95'],
     },
 }
 
