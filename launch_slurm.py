@@ -7,7 +7,7 @@ REPO_DIR = os.path.abspath(".")  # adjust if needed
 SWEEP_CONFIG = "grid"
 PROJECT = f"decouple-alphas-{SWEEP_CONFIG}"
 data = True # add the data param?
-slurm = True  # whether to launch the jobs on SLURM or not
+slurm = False  # whether to launch the jobs on SLURM or not
 
 
 # Parameters that represent each unique optimisation space
@@ -16,8 +16,9 @@ grid = {
     "default": {
         "model": ["basic_mlp"],
         "task": ["fmnist"],
-        "optimizer.lr": [0.05, 0.1, 0.5, 1.0],
-        "optimizer.momentum": [0.0, 0.9, 0.99],
+        "optimizer.lr": [0.1, 0.5],
+        # "optimizer.weight_decay": [0.0, 1e-4, 1e-3],
+        # "optimizer.momentum": [0.0, 0.9, 0.99],
         "corruption.alpha": [0.01, 0.25, 0.5, 0.75, 0.99],
         "trainer.min_epochs": ["20"],
         "trainer.max_epochs": ["20"],
@@ -27,9 +28,9 @@ grid = {
         "optimizer.alpha": [0.01, 0.25, 0.5, 0.75, 0.99],
         "optimizer.block_size": ['4'],
     },
-    "gd": {
-        "optimizer.update_alg": ['gd'],
-    },
+    # "gd": {
+    #     "optimizer.update_alg": ['gd'],
+    # },
 }
 
 def launch_job(**hp):
