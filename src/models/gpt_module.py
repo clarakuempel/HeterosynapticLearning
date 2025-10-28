@@ -4,6 +4,7 @@ import torch
 from typing import Tuple
 from lightning import LightningModule
 from src.optimizer.md import HP_SGD
+# from src.optimizer.md_clara_local import HP_SGD
 
 from torchmetrics import MaxMetric, MeanMetric, MinMetric
 from torchmetrics.classification.accuracy import Accuracy
