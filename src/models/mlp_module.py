@@ -4,6 +4,7 @@ import torch
 from typing import Tuple
 from lightning import LightningModule
 from src.optimizer.md import HP_SGD
+# from src.optimizer.md_clara_local import HP_SGD
 
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.classification.accuracy import Accuracy
@@ -41,7 +42,6 @@ class MLP_module(LightningModule):
         self.save_hyperparameters(ignore=['net', 'optimizer', 'pruning'])        
 
     def prune(self):
-        # TODO: implement the pruning rounds
         apply_nm_pruning(
             self.net,
             self.cfg_pruning['N'],

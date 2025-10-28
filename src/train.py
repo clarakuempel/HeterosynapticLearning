@@ -42,6 +42,7 @@ def train(cfg : DictConfig) -> Optional[float]:
     # If pruning is enabled prune and re-train
     # NOTE: for now no pruning rounds
     if cfg['pruning']['enable']:
+        print("calling .prune()")
         model.prune()
         trainer.validate(model, datamodule)
         print("Re-initializing trainer for pruning...")
