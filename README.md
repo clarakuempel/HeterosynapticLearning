@@ -13,11 +13,21 @@ Heterosynaptic plasticity allows neural connections to be influenced by the acti
 - **Multiple Architectures**: Supports both MLPs and GPT-style transformer models
 - **Neural Pruning**: N:M structured sparsity patterns for efficient inference
 - **Comprehensive Logging**: Weights & Biases integration for experiment tracking
+- **Corruption Analysis**: Built-in support for studying robustness with different corruption types
 
 ### Supported Tasks
 
 - **MNIST Classification**: Standard benchmark for image classification
+- **Fashion-MNIST Classification**: Fashion item classification benchmark
 - **Selective Copying**: Sequential task requiring selective attention and memory
+- **Penn Treebank Language Modeling**: Character-level language modeling task
+
+### Corruption Types
+
+The project supports various corruption mechanisms for studying robustness:
+- **Identity**: No corruption (baseline)
+- **Full Dense**: Dense coupling matrices
+- **Block Diagonal**: Structured block-diagonal coupling
 
 ## Installation
 
@@ -32,14 +42,14 @@ Heterosynaptic plasticity allows neural connections to be influenced by the acti
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone git@github.com:clarakuempel/HeterosynapticLearning.git
 cd HeterosynapticLearning
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-or in conda
+Or using conda:
 
 ```bash
 conda create -p $HOME/HL-env python=3.11 -y
@@ -64,23 +74,26 @@ python src/train.py
 The project uses Hydra for configuration management. Key configuration files are located in `conf/`:
 
 - `config.yaml`: Main configuration file
-- `model/`: Model architectures (MLP, nanoGPT)
-- `data/`: Dataset configurations (MNIST, selective copying)
+- `model/`: Model architectures (basic_mlp, nanoGPT)
+- `data/`: Dataset configurations (mnist, fmnist, penn_treebank, selective_copying)
+- `task/`: Task-specific configurations (mnist, fmnist, penn_treebank, selective_copying)
 - `optimizer/`: Optimizer settings including heterosynaptic parameters
 - `trainer/`: PyTorch Lightning trainer configurations
+- `corruption/`: Corruption mechanisms for robustness studies
+- `pruning/`: Neural pruning configurations
+- `logger/`: Weights & Biases logging settings
+- `hparams_search/`: Hyperparameter search configurations (grid, optuna)
 
 ### Hyperparameter Sweeps
 
-Run hyperparameter optimization with Optuna:
+For large-scale experiments, use the launch scripts:
 
 ```bash
-python src/train.py -m hparams_search=mnist_optuna
-```
+# Corruption type sweep (identity, full_dense, block_diagonal) with adamW
+python launch_corruption_sweep.py
 
-Run grid search sweeps:
-
-```bash
-python src/train.py -m hparams_search=grid
+# Fashion-MNIST alpha parameter grid search (local or SLURM)
+python launch_slurm.py
 ```
 
 ### Key Parameters
@@ -91,47 +104,14 @@ python src/train.py -m hparams_search=grid
 - `optimizer.block_size`: Size of blocks in the Hessian matrix (default: 4)
 - `optimizer.alpha`: Coupling strength for heterosynaptic interactions (default: 0.1)
 
-#### Model Configuration
+#### Dataset Selection
 
-```bash
-# Train with heterosynaptic plasticity
-python src/train.py optimizer.update_alg=md optimizer.alpha=0.1 optimizer.block_size=4
+- `task=mnist`: MNIST digit classification
+- `task=fmnist`: Fashion-MNIST classification
+- `task=selective_copying`: Sequential copying task
+- `task=penn_treebank`: Character-level language modeling (Still Work in Progress)
 
-# Train with standard gradient descent
-python src/train.py optimizer.update_alg=gd
 
-# Change model architecture
-python src/train.py model=nanoGPT data=selective_copying
-```
-
-### Pruning
-
-Enable neural network pruning:
-
-```bash
-python src/train.py pruning.enable=true pruning.N=2 pruning.M=4
-```
-
-This applies 2:4 structured sparsity (2 out of every 4 weights are pruned).
-
-## Project Structure
-
-```
-src/
-├── train.py              # Main training script
-├── eval.py              # Evaluation utilities
-├── data/                # Dataset implementations
-│   ├── mnist_datamodule.py
-│   └── selectivecopying_datamodule.py
-├── models/              # Model architectures
-│   ├── mlp_module.py    # MLP with heterosynaptic learning
-│   └── gpt_module.py    # Transformer model
-├── optimizer/           # Custom optimizers
-│   └── md.py           # HP_SGD optimizer implementation
-└── utils/              # Utility functions
-    ├── corruptions.py  # Data corruption utilities
-    └── prune.py       # Neural pruning functions
-```
 
 ## Optimizer Details
 
@@ -147,27 +127,3 @@ The update rule for mirror descent is:
 ```
 
 where H is the block-diagonal Hessian approximation with coupling strength α.
-
-## Logging and Monitoring
-
-The project integrates with Weights & Biases for comprehensive experiment tracking:
-
-- Training/validation/test metrics
-- Hyperparameter configurations
-- Model checkpoints
-- Pruning statistics
-
-Configure logging in `conf/logger/wandb.yaml`.
-
-## Citation
-
-If you use this code in your research, please cite:
-
-```bibtex
-@misc{heterosynaptic-learning,
-  title={Heterosynaptic Learning in Artificial Neural Networks},
-  author={Your Name},
-  year={2024},
-  howpublished={\url{https://github.com/your-repo}}
-}
-``` 
