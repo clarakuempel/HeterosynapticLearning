@@ -90,7 +90,6 @@ def launch_job(**hp):
         cmd.append(f"data.data_dir={data_dir}/data")
 
 
-    # the keu is the name of the hyperparameter, the value is the value to set it to
     for key, value in hp.items():
         cmd.append(f"{key}={value}")
 
