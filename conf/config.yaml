@@ -1,9 +1,9 @@
 
 defaults:
   - _self_ # to avoid a warning
-  - task: penn_treebank
+  - task: mnist
   - optimizer: default
-  - model: nanoGPT
+  - model: basic_mlp
   - logger: wandb
   - pruning: basic
   - corruption: basic

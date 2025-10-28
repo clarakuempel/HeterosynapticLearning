@@ -119,6 +119,10 @@ def sgd(params: List[Tensor],
 def mirror_descent_update(param, grad, hessian, block_size, lr):
     """Mirror descent update with block-diagonal Hessian. In place operation"""
     g = grad.flatten()
+    
+    # Move hessian to same device as gradients
+    hessian = hessian.to(g.device)
+    
     spill = g.numel() % block_size
     if spill:
         main_g, tail_g = g[:-spill], g[-spill:]
