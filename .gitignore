@@ -6,6 +6,8 @@
 /wandb/
 tmp.sh
 slurm-logs/
+$TMP_SHARED
+penntreebank
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
