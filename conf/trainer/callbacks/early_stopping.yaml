@@ -1,5 +1,5 @@
 - _target_: lightning.pytorch.callbacks.EarlyStopping
-  monitor: val/ppl_best
+  monitor: val/acc
   patience: 12
   min_delta: 1
   mode: min

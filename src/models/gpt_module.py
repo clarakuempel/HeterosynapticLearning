@@ -4,6 +4,7 @@ import torch
 from typing import Tuple
 from lightning import LightningModule
 from src.optimizer.md import HP_SGD
+# from src.optimizer.md_clara_local import HP_SGD
 
 from torchmetrics import MaxMetric, MeanMetric, MinMetric
 from torchmetrics.classification.accuracy import Accuracy
@@ -15,10 +16,11 @@ class GPT_module(LightningModule):
     """
     A lightning module for a nanoGPT
     """
-    def __init__(self, net, optimizer): # for now only net, future add pruning and corruption
+    def __init__(self, net, optimizer, pruning): 
         super().__init__()
         self.net = net
         self.cfg_optimizer = optimizer
+        self.cfg_pruning = pruning
 
         # criterion 
         self.criterion = nn.CrossEntropyLoss(reduction='mean')
@@ -44,7 +46,15 @@ class GPT_module(LightningModule):
         # for tracking best so far validation accuracy
         self.val_acc_best = MaxMetric()
         self.val_ppl_best = MinMetric()
-        self.save_hyperparameters(ignore=['net'])        
+        self.save_hyperparameters(ignore=['net', 'pruning'])        
+
+    def prune(self):
+        print("applying pruning")
+        apply_nm_pruning(
+            self.net,
+            self.cfg_pruning['N'],
+            self.cfg_pruning['M'],
+        )
 
     def on_train_start(self) -> None:
         """Lightning hook that is called when training begins."""
