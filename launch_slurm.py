@@ -28,9 +28,9 @@ grid = {
         "optimizer.alpha": [0.01, 0.25, 0.5, 0.75, 0.99],
         "optimizer.block_size": ['4'],
     },
-    # "gd": {
-    #     "optimizer.update_alg": ['gd'],
-    # },
+    "gd": {
+        "optimizer.update_alg": ['gd'],
+    },
 }
 
 def launch_job(**hp):
