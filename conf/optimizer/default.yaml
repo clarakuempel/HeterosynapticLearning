@@ -1,8 +1,8 @@
 lr: 0.01
 weight_decay: 0.0
-update_alg: "md"  
-block_size: 4
-alpha: 0.1
+update_alg: "md"    # change here between gd and md
+block_size: 4       # test 2,4,8,...
+alpha: 0.1          # change alpha if needed
 momentum: 0.0
 dampening: ${optimizer.momentum} # 
 nesterov: false

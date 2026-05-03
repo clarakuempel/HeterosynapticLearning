@@ -227,7 +227,7 @@ class SelectiveCopyingDataModule(L.LightningDataModule):
                 variable_length=self.variable_length,
                 one_hot=self.one_hot,
                 reverse=self.reverse,
-                seed=self.seed + 1  # Different seed for validation
+                seed=self.seed + 1 if self.seed is not None else None
             )
         
         if stage in ["test", "validate"]:
@@ -240,7 +240,7 @@ class SelectiveCopyingDataModule(L.LightningDataModule):
                 variable_length=self.variable_length,
                 one_hot=self.one_hot,
                 reverse=self.reverse,
-                seed=self.seed + 2  # Different seed for test
+                seed=self.seed + 2 if self.seed is not None else None
             )
         
         if stage == "predict":
@@ -253,7 +253,7 @@ class SelectiveCopyingDataModule(L.LightningDataModule):
                 variable_length=self.variable_length,
                 one_hot=self.one_hot,
                 reverse=self.reverse,
-                seed=self.seed + 3  # Different seed for prediction
+                seed=self.seed + 3 if self.seed is not None else None
             )
     
     def train_dataloader(self):

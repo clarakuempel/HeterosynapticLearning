@@ -1,9 +1,9 @@
 
 defaults:
-  - _self_ # to avoid a warning
-  - task: mnist
-  - optimizer: default
-  - model: basic_mlp
+  - _self_ 
+  - task: mnist                   # options are mnist, fmnist, penn_treebank, selective_copying (change model to nanoGPT if you choose penn_treebank or selective_copying)
+  - optimizer: default            
+  - model: basic_mlp              # options are basic_mlp, nanoGPT
   - logger: wandb
   - pruning: basic
   - corruption: basic
